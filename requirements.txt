@@ -1,0 +1,10 @@
+chromadb
+langchain
+langchain-text-splitters
+openai
+PyMuPDF
+python-docx
+python-dotenv
+requests
+sentence-transformers
+streamlit

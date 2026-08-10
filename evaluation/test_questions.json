@@ -1,0 +1,9 @@
+[
+  {
+    "question": "Uzaktan çalışma için kimden onay alınmalıdır?",
+    "expected_answer": "Birim yöneticisinden",
+    "expected_file": "uzaktan_calisma.pdf",
+    "expected_page": 4,
+    "answerable": true
+  }
+]
