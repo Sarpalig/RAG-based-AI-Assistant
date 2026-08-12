@@ -2,8 +2,71 @@
   {
     "question": "Uzaktan çalışma için kimden onay alınmalıdır?",
     "expected_answer": "Birim yöneticisinden",
-    "expected_file": "uzaktan_calisma.pdf",
-    "expected_page": 4,
+    "expected_file": "remote_work_policy.md",
+    "expected_page": 1,
+    "answerable": true
+  },
+  {
+    "question": "Uzaktan çalışma talebi ne kadar önce iletilmelidir?",
+    "expected_answer": "En az 3 gün önceden",
+    "expected_file": "remote_work_policy.md",
+    "expected_page": 1,
+    "answerable": true
+  },
+  {
+    "question": "Şifrelerde en az kaç karakter bulunmalıdır?",
+    "expected_answer": "12 karakter",
+    "expected_file": "security_guidelines.md",
+    "expected_page": 1,
+    "answerable": true
+  },
+  {
+    "question": "Hangi güvenlik yöntemi zorunludur?",
+    "expected_answer": "İki faktörlü doğrulama",
+    "expected_file": "security_guidelines.md",
+    "expected_page": 1,
+    "answerable": true
+  },
+  {
+    "question": "Yeni çalışan ilk gün neyi tamamlamalıdır?",
+    "expected_answer": "Şirket giriş prosedürlerini",
+    "expected_file": "onboarding_process.docx",
+    "expected_page": 1,
+    "answerable": true
+  },
+  {
+    "question": "Harcama talepleri ne zaman yöneticilere iletilmelidir?",
+    "expected_answer": "Ay sonundan önce",
+    "expected_file": "travel_expense_policy.pdf",
+    "expected_page": 1,
+    "answerable": true
+  },
+  {
+    "question": "Hassas veriler kime erişebilir?",
+    "expected_answer": "Yalnızca yetkili personel",
+    "expected_file": "security_guidelines.md",
+    "expected_page": 1,
+    "answerable": true
+  },
+  {
+    "question": "Şirket içi belgeler hangi sınıflar ile etiketlenmelidir?",
+    "expected_answer": "Özel, Kurumsal veya Genel",
+    "expected_file": "security_guidelines.md",
+    "expected_page": 1,
+    "answerable": true
+  },
+  {
+    "question": "Bu belgede cevap bulunmayan bir soru sorulursa ne olur?",
+    "expected_answer": "Cevap bulunamaz",
+    "expected_file": null,
+    "expected_page": null,
+    "answerable": false
+  },
+  {
+    "question": "Çalışanların günlük raporları ne zaman yüklenmelidir?",
+    "expected_answer": "Her akşam",
+    "expected_file": "remote_work_policy.md",
+    "expected_page": 1,
     "answerable": true
   }
 ]

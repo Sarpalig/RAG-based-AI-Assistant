@@ -119,7 +119,7 @@ rag-document-assistant/
 
 | ID | Task | Bağımlılık | Somut çıktı | Durum |
 |---|---|---|---|---|
-| T01 | Proje iskeleti ve ortam | — | Çalışan Python projesi | ⬜ |
+| T01 | Proje iskeleti ve ortam | — | Çalışan Python projesi | ✅ |
 | T02 | Test belgeleri ve sorular | T01 | En az 10 soruluk başlangıç seti | ⬜ |
 | T03 | Belge yükleme ve metin çıkarma | T01 | PDF, DOCX, MD okuyucu | ⬜ |
 | T04 | Chunking ve metadata | T03 | Kaynağı korunan chunk listesi | ⬜ |
@@ -144,14 +144,14 @@ Durum işaretleri: `⬜ Yapılmadı` · `🟨 Devam ediyor` · `✅ Tamamlandı`
 
 #### Yapılacaklar
 
-- [ ] VS Code proje klasörünü oluştur.
-- [ ] Python `.venv` sanal ortamını oluştur ve etkinleştir.
-- [ ] `src`, `data`, `tests`, `evaluation` klasörlerini oluştur.
-- [ ] `requirements.txt` dosyasını hazırla.
-- [ ] `.env.example` oluştur.
-- [ ] `.gitignore` içine `.env`, `.venv/`, `__pycache__/`, `chroma_db/` ve gerçek belgeleri ekle.
-- [ ] Yerel Git repository'sini başlat.
-- [ ] Basit bir Python dosyasını çalıştırarak ortamı doğrula.
+- [x] VS Code proje klasörünü oluştur.
+- [x] Python `.venv` sanal ortamını oluştur ve etkinleştir.
+- [x] `src`, `data`, `tests`, `evaluation` klasörlerini oluştur.
+- [x] `requirements.txt` dosyasını hazırla.
+- [x] `.env.example` oluştur.
+- [x] `.gitignore` içine `.env`, `.venv/`, `__pycache__/`, `chroma_db/` ve gerçek belgeleri ekle.
+- [x] Yerel Git repository'sini başlat.
+- [x] Basit bir Python dosyasını çalıştırarak ortamı doğrula.
 
 #### Kabul kriteri
 
