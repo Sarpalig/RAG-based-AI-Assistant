@@ -1,12 +1,11 @@
 import os
 from hashlib import sha256
 from io import BytesIO
-from pathlib import Path
 
 from dotenv import load_dotenv
 
 from .chunking import split_text
-from .embeddings import EmbeddingModel
+from .embeddings import embed_texts, get_embedding_model
 from .loaders import extract_text
 from .vector_store import (
     add_documents,
@@ -36,7 +35,7 @@ class RagPipeline:
 
         self.client = create_chroma_client(self.chroma_dir)
         self.collection = get_or_create_collection(self.client, self.collection_name)
-        self.embedding_model = EmbeddingModel(self.embedding_model_name)
+        self.embedding_model = get_embedding_model(self.embedding_model_name)
 
     def index_file(self, file, file_name=None):
         file_content = self._read_file_content(file)
@@ -65,7 +64,7 @@ class RagPipeline:
             }
 
         texts = [chunk["text"] for chunk in chunks]
-        embeddings = self.embedding_model.encode(texts)
+        embeddings = embed_texts(self.embedding_model, texts)
         add_documents(self.collection, chunks, embeddings)
 
         return {
@@ -78,46 +77,11 @@ class RagPipeline:
     def index_files(self, files):
         results = []
         for file in files:
-            file_name = getattr(file, "name", None)
-            if file_name:
-                file_name = Path(file_name).name
-            results.append(self.index_file(file, file_name))
+            results.append(self.index_file(file))
         return results
-
-    def search(self, question, top_k=5):
-        query_embedding = self.embedding_model.embed_query(question)
-        results = similarity_search(self.collection, query_embedding, top_k=top_k)
-        return self.format_search_results(results)
 
     def delete_document(self, document_hash):
         delete_document(self.collection, document_hash)
-
-    @staticmethod
-    def format_search_results(results):
-        formatted_results = []
-
-        ids = results.get("ids", [[]])[0]
-        documents = results.get("documents", [[]])[0]
-        metadatas = results.get("metadatas", [[]])[0]
-        distances = results.get("distances", [[]])[0]
-
-        for index, chunk_id in enumerate(ids):
-            metadata = metadatas[index] or {}
-            distance = distances[index] if index < len(distances) else None
-
-            formatted_results.append(
-                {
-                    "chunk_id": chunk_id,
-                    "text": documents[index],
-                    "file_name": metadata.get("file_name"),
-                    "page_number": metadata.get("page_number"),
-                    "paragraph_number": metadata.get("paragraph_number"),
-                    "document_type": metadata.get("document_type"),
-                    "distance": distance,
-                }
-            )
-
-        return formatted_results
 
     @staticmethod
     def _read_file_content(file):
@@ -133,3 +97,35 @@ class RagPipeline:
     @staticmethod
     def _hash_content(file_content):
         return sha256(file_content).hexdigest()
+
+
+    def search(self,question,top_k=5):
+        query_embedding = self.embedding_model.embed_query(question)
+        results = similarity_search(self.collection,query_embedding,top_k)
+        return self.format_search_results(results)
+
+
+    def format_search_results(self, results):
+        formatted_results = []
+
+        ids = results.get("ids", [[]])[0]
+        documents = results.get("documents", [[]])[0]
+        metadatas = results.get("metadatas", [[]])[0]
+        distances = results.get("distances", [[]])[0]
+
+        for index, chunk_id in enumerate(ids):
+            metadata = metadatas[index] or {}
+
+            formatted_results.append(
+                {
+                    "chunk_id": chunk_id,
+                    "text": documents[index],
+                    "file_name": metadata.get("file_name"),
+                    "page_number": metadata.get("page_number"),
+                    "paragraph_number": metadata.get("paragraph_number"),
+                    "document_type": metadata.get("document_type"),
+                    "distance": distances[index] if distances else None,
+                }
+            )
+
+        return formatted_results  
