@@ -1,14 +1,135 @@
 import os
+from hashlib import sha256
+from io import BytesIO
+from pathlib import Path
 
 from dotenv import load_dotenv
 
 from .chunking import split_text
-from .embeddings import embed_texts, get_embedding_model
-from .generation import query_openrouter
+from .embeddings import EmbeddingModel
 from .loaders import extract_text
 from .vector_store import (
     add_documents,
     create_chroma_client,
+    delete_document,
+    document_exists,
     get_or_create_collection,
     similarity_search,
 )
+
+
+class RagPipeline:
+    def __init__(
+        self,
+        chroma_dir=None,
+        collection_name="rag_documents",
+        embedding_model_name=None,
+    ):
+        load_dotenv()
+
+        self.chroma_dir = chroma_dir or os.getenv("CHROMA_DIR", "chroma_db")
+        self.collection_name = collection_name
+        self.embedding_model_name = embedding_model_name or os.getenv(
+            "EMBEDDING_MODEL_NAME",
+            "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+        )
+
+        self.client = create_chroma_client(self.chroma_dir)
+        self.collection = get_or_create_collection(self.client, self.collection_name)
+        self.embedding_model = EmbeddingModel(self.embedding_model_name)
+
+    def index_file(self, file, file_name=None):
+        file_content = self._read_file_content(file)
+        file_name = file_name or getattr(file, "name", "uploaded_document")
+        document_hash = self._hash_content(file_content)
+
+        if document_exists(self.collection, document_hash):
+            return {
+                "file_name": file_name,
+                "document_hash": document_hash,
+                "chunk_count": 0,
+                "skipped": True,
+            }
+
+        documents = extract_text(BytesIO(file_content), file_name)
+        for document in documents:
+            document["document_hash"] = document_hash
+
+        chunks = split_text(documents)
+        if not chunks:
+            return {
+                "file_name": file_name,
+                "document_hash": document_hash,
+                "chunk_count": 0,
+                "skipped": False,
+            }
+
+        texts = [chunk["text"] for chunk in chunks]
+        embeddings = self.embedding_model.encode(texts)
+        add_documents(self.collection, chunks, embeddings)
+
+        return {
+            "file_name": file_name,
+            "document_hash": document_hash,
+            "chunk_count": len(chunks),
+            "skipped": False,
+        }
+
+    def index_files(self, files):
+        results = []
+        for file in files:
+            file_name = getattr(file, "name", None)
+            if file_name:
+                file_name = Path(file_name).name
+            results.append(self.index_file(file, file_name))
+        return results
+
+    def search(self, question, top_k=5):
+        query_embedding = self.embedding_model.embed_query(question)
+        results = similarity_search(self.collection, query_embedding, top_k=top_k)
+        return self.format_search_results(results)
+
+    def delete_document(self, document_hash):
+        delete_document(self.collection, document_hash)
+
+    @staticmethod
+    def format_search_results(results):
+        formatted_results = []
+
+        ids = results.get("ids", [[]])[0]
+        documents = results.get("documents", [[]])[0]
+        metadatas = results.get("metadatas", [[]])[0]
+        distances = results.get("distances", [[]])[0]
+
+        for index, chunk_id in enumerate(ids):
+            metadata = metadatas[index] or {}
+            distance = distances[index] if index < len(distances) else None
+
+            formatted_results.append(
+                {
+                    "chunk_id": chunk_id,
+                    "text": documents[index],
+                    "file_name": metadata.get("file_name"),
+                    "page_number": metadata.get("page_number"),
+                    "paragraph_number": metadata.get("paragraph_number"),
+                    "document_type": metadata.get("document_type"),
+                    "distance": distance,
+                }
+            )
+
+        return formatted_results
+
+    @staticmethod
+    def _read_file_content(file):
+        if isinstance(file, bytes):
+            return file
+        if hasattr(file, "seek"):
+            file.seek(0)
+        file_content = file.read()
+        if isinstance(file_content, str):
+            return file_content.encode("utf-8")
+        return file_content
+
+    @staticmethod
+    def _hash_content(file_content):
+        return sha256(file_content).hexdigest()
