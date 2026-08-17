@@ -1,18 +1,18 @@
 import os
 from hashlib import sha256
 from io import BytesIO
+from pathlib import Path
 
 from dotenv import load_dotenv
 
 from .chunking import split_text
-from .embeddings import embed_texts, get_embedding_model
+from .embeddings import EmbeddingModel
 from .loaders import extract_text
 from .vector_store import (
     add_documents,
     create_chroma_client,
     delete_document,
     document_exists,
-    get_or_create_collection,
     similarity_search,
 )
 
@@ -34,8 +34,10 @@ class RagPipeline:
         )
 
         self.client = create_chroma_client(self.chroma_dir)
-        self.collection = get_or_create_collection(self.client, self.collection_name)
-        self.embedding_model = get_embedding_model(self.embedding_model_name)
+        self.collection = self.client.get_or_create_collection(
+            name=self.collection_name
+        )
+        self.embedding_model = EmbeddingModel(self.embedding_model_name)
 
     def index_file(self, file, file_name=None):
         file_content = self._read_file_content(file)
@@ -64,7 +66,7 @@ class RagPipeline:
             }
 
         texts = [chunk["text"] for chunk in chunks]
-        embeddings = embed_texts(self.embedding_model, texts)
+        embeddings = self.embedding_model.encode(texts)
         add_documents(self.collection, chunks, embeddings)
 
         return {
@@ -77,7 +79,10 @@ class RagPipeline:
     def index_files(self, files):
         results = []
         for file in files:
-            results.append(self.index_file(file))
+            file_name = getattr(file, "name", None)
+            if file_name:
+                file_name = Path(file_name).name
+            results.append(self.index_file(file, file_name))
         return results
 
     def delete_document(self, document_hash):
@@ -105,7 +110,8 @@ class RagPipeline:
         return self.format_search_results(results)
 
 
-    def format_search_results(self, results):
+    @staticmethod
+    def format_search_results(results):
         formatted_results = []
 
         ids = results.get("ids", [[]])[0]

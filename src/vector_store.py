@@ -7,12 +7,6 @@ def create_chroma_client(chroma_dir):
     return chromadb.Client(Settings(is_persistent=True, persist_directory=chroma_dir))
 
 
-def get_or_create_collection(client, collection_name="rag_documents"):
-    if collection_name in [col.name for col in client.list_collections()]:
-        return client.get_collection(collection_name)
-    return client.create_collection(name=collection_name)
-
-
 def add_documents(collection, chunks, embeddings):
     ids = [chunk["chunk_id"] for chunk in chunks]
     documents = [chunk["text"] for chunk in chunks]

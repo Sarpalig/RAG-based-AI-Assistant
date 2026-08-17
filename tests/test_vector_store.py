@@ -1,5 +1,5 @@
 import os
-from src.vector_store import create_chroma_client, get_or_create_collection, add_documents, similarity_search
+from src.vector_store import create_chroma_client, add_documents, similarity_search
 
 
 def test_chroma_add_and_query(tmp_path):
@@ -7,7 +7,7 @@ def test_chroma_add_and_query(tmp_path):
     db_dir.mkdir()
 
     client = create_chroma_client(str(db_dir))
-    collection = get_or_create_collection(client, collection_name="pytest_rag")
+    collection = client.get_or_create_collection(name="pytest_rag")
 
     chunks = [
         {
