@@ -140,20 +140,53 @@ def test_answer_query_searches_builds_prompt_and_calls_openrouter(monkeypatch):
         assert "Who approves remote work?" in prompt
         assert "Remote work requires manager approval." in prompt
         assert max_tokens == 512
-        return "Manager approval is required."
+        return "Manager approval is required. [Kaynak 1] [Kaynak 99]"
 
     monkeypatch.setattr(pipeline, "search", fake_search)
     monkeypatch.setattr(rag_pipeline, "query_openrouter", fake_query_openrouter)
 
-    answer = pipeline.answer_query("Who approves remote work?", top_k=3)
+    answer, citations = pipeline.answer_query("Who approves remote work?", top_k=3)
 
-    assert answer == "Manager approval is required."
+    assert answer == "Manager approval is required. [Kaynak 1] "
+    assert citations == ["Kaynak 1: remote_work_policy.md"]
 
 
 def test_answer_query_returns_not_found_when_no_search_results(monkeypatch):
     pipeline = object.__new__(RagPipeline)
     monkeypatch.setattr(pipeline, "search", lambda question, top_k=5: [])
 
-    answer = pipeline.answer_query("Unknown question?")
+    answer, citations = pipeline.answer_query("Unknown question?")
 
     assert answer == "Bu bilgi verilen belgelerde bulunamadı."
+    assert citations == []
+
+
+def test_build_citations_includes_file_page_and_paragraph():
+    citations = RagPipeline.build_citations(
+        [
+            {
+                "file_name": "travel_expense_policy.pdf",
+                "page_number": 2,
+                "paragraph_number": None,
+            },
+            {
+                "file_name": "onboarding_process.docx",
+                "page_number": None,
+                "paragraph_number": 4,
+            },
+        ]
+    )
+
+    assert citations == [
+        "Kaynak 1: travel_expense_policy.pdf, sayfa 2",
+        "Kaynak 2: onboarding_process.docx, paragraf 4",
+    ]
+
+
+def test_filter_invalid_citations_removes_unknown_source_numbers():
+    answer = RagPipeline.filter_invalid_citations(
+        "Cevap [Kaynak 1] ama bu uydurma [Kaynak 9].",
+        source_count=2,
+    )
+
+    assert answer == "Cevap [Kaynak 1] ama bu uydurma ."

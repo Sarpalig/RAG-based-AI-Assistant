@@ -1,4 +1,5 @@
 import os
+import re
 from hashlib import sha256
 from io import BytesIO
 from pathlib import Path
@@ -165,7 +166,7 @@ Kaynaklar:
     def answer_query(self, question, top_k=5):
         search_results = self.search(question, top_k)
         if not search_results:
-            return "Bu bilgi verilen belgelerde bulunamadı."
+            return "Bu bilgi verilen belgelerde bulunamadı.", []
 
         prompt = self.build_rag_prompt(question, search_results)
 
@@ -175,7 +176,40 @@ Kaynaklar:
             prompt=prompt,
             max_tokens=512,
         )
-        return answer
+        citations = self.build_citations(search_results)
+        answer = self.filter_invali7d_citations(answer, len(citations))
+        return answer, citations
+
+    @staticmethod
+    def build_citations(results):
+        citations = []
+
+        for index, result in enumerate(results, start=1):
+            file_name = result.get("file_name") or "Bilinmeyen dosya"
+            location_parts = []
+
+            if result.get("page_number") is not None:
+                location_parts.append(f"sayfa {result['page_number']}")
+            if result.get("paragraph_number") is not None:
+                location_parts.append(f"paragraf {result['paragraph_number']}")
+
+            location = ", ".join(location_parts)
+            if location:
+                citations.append(f"Kaynak {index}: {file_name}, {location}")
+            else:
+                citations.append(f"Kaynak {index}: {file_name}")
+
+        return citations
+
+    @staticmethod
+    def filter_invalid_citations(answer, source_count):
+        def replace_invalid(match):
+            source_number = int(match.group(1))
+            if 1 <= source_number <= source_count:
+                return match.group(0)
+            return ""
+
+        return re.sub(r"\[Kaynak\s+(\d+)\]", replace_invalid, answer)
 
     @staticmethod
     def _read_file_content(file):
