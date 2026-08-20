@@ -95,3 +95,65 @@ def test_index_files_uses_base_file_name(monkeypatch):
 
     assert seen_file_names == ["remote_work_policy.md"]
     assert results == [{"file_name": "remote_work_policy.md"}]
+
+
+def test_build_rag_prompt_includes_rules_question_and_sources():
+    pipeline = object.__new__(RagPipeline)
+
+    prompt = pipeline.build_rag_prompt(
+        "Uzaktan çalışma için kimden onay alınmalıdır?",
+        [
+            {
+                "file_name": "remote_work_policy.md",
+                "text": "Uzaktan çalışma için onay birim yöneticisinden alınır.",
+            }
+        ],
+    )
+
+    assert "Use only the provided context" in prompt
+    assert "Uzaktan çalışma için kimden onay alınmalıdır?" in prompt
+    assert "[Kaynak 1]" in prompt
+    assert "remote_work_policy.md" in prompt
+    assert "Uzaktan çalışma için onay birim yöneticisinden alınır." in prompt
+
+
+def test_answer_query_searches_builds_prompt_and_calls_openrouter(monkeypatch):
+    pipeline = object.__new__(RagPipeline)
+    pipeline.openrouter_api_key = "test-key"
+    pipeline.openrouter_model = "test-model"
+
+    search_results = [
+        {
+            "file_name": "remote_work_policy.md",
+            "text": "Remote work requires manager approval.",
+        }
+    ]
+
+    def fake_search(question, top_k=5):
+        assert question == "Who approves remote work?"
+        assert top_k == 3
+        return search_results
+
+    def fake_query_openrouter(api_key, model, prompt, max_tokens=512):
+        assert api_key == "test-key"
+        assert model == "test-model"
+        assert "Who approves remote work?" in prompt
+        assert "Remote work requires manager approval." in prompt
+        assert max_tokens == 512
+        return "Manager approval is required."
+
+    monkeypatch.setattr(pipeline, "search", fake_search)
+    monkeypatch.setattr(rag_pipeline, "query_openrouter", fake_query_openrouter)
+
+    answer = pipeline.answer_query("Who approves remote work?", top_k=3)
+
+    assert answer == "Manager approval is required."
+
+
+def test_answer_query_returns_not_found_when_no_search_results(monkeypatch):
+    pipeline = object.__new__(RagPipeline)
+    monkeypatch.setattr(pipeline, "search", lambda question, top_k=5: [])
+
+    answer = pipeline.answer_query("Unknown question?")
+
+    assert answer == "Bu bilgi verilen belgelerde bulunamadı."
