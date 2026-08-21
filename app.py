@@ -19,6 +19,9 @@ def load_pipeline():
 
     status.info("Embedding modeli ve vector store hazirlaniyor...")
     pipeline = get_pipeline()
+    if not hasattr(pipeline, "list_indexed_documents"):
+        get_pipeline.clear()
+        pipeline = get_pipeline()
 
     progress.progress(100)
     status.success("RAG pipeline hazir.")
