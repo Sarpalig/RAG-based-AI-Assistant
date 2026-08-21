@@ -38,5 +38,32 @@ def delete_document(collection, document_hash):
     collection.delete(where={"document_hash": document_hash})
 
 
+def list_indexed_documents(collection):
+    result = collection.get(include=["metadatas"])
+    documents = {}
+
+    for metadata in result.get("metadatas", []):
+        if not metadata:
+            continue
+
+        document_hash = metadata.get("document_hash")
+        if not document_hash:
+            continue
+
+        document = documents.setdefault(
+            document_hash,
+            {
+                "document_hash": document_hash,
+                "file_name": metadata.get("file_name", "Bilinmeyen dosya"),
+                "document_type": metadata.get("document_type"),
+                "chunk_count": 0,
+                "skipped": False,
+            },
+        )
+        document["chunk_count"] += 1
+
+    return sorted(documents.values(), key=lambda item: item["file_name"])
+
+
 def similarity_search(collection, query_embedding, top_k=5):
     return collection.query(query_embeddings=[query_embedding], n_results=top_k)

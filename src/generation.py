@@ -7,6 +7,10 @@ class OpenRouterError(Exception):
     """Raised when an OpenRouter request cannot return a usable answer."""
 
 
+class OpenRouterRateLimitError(OpenRouterError):
+    """Raised when OpenRouter or an upstream provider returns HTTP 429."""
+
+
 def query_openrouter(
     api_key,
     model,
@@ -45,7 +49,9 @@ def query_openrouter(
         except requests.HTTPError as exc:
             last_error = exc
             status_code = exc.response.status_code if exc.response is not None else None
-            if status_code not in {429, 500, 502, 503, 504}:
+            if status_code == 429:
+                raise OpenRouterRateLimitError(_format_rate_limit_error(exc)) from exc
+            if status_code not in {500, 502, 503, 504}:
                 raise OpenRouterError(_format_http_error(exc)) from exc
         except (requests.Timeout, requests.ConnectionError) as exc:
             last_error = exc
@@ -67,3 +73,15 @@ def _format_http_error(error):
 
     response_text = response.text[:500] if response.text else ""
     return f"OpenRouter HTTP {response.status_code}: {response_text}"
+
+
+def _format_rate_limit_error(error):
+    response = error.response
+    if response is None:
+        return "OpenRouter rate limit reached. Please wait before asking again."
+
+    retry_after = getattr(response, "headers", {}).get("Retry-After")
+    wait_hint = f" Retry after {retry_after} seconds." if retry_after else ""
+    response_text = response.text[:500] if response.text else ""
+    details = f" Details: {response_text}" if response_text else ""
+    return f"OpenRouter rate limit reached (HTTP 429).{wait_hint}{details}"

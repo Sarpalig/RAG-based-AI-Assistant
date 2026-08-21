@@ -1,4 +1,5 @@
 from src import rag_pipeline
+from src.generation import OpenRouterRateLimitError
 from src.rag_pipeline import RagPipeline
 
 
@@ -121,6 +122,7 @@ def test_answer_query_searches_builds_prompt_and_calls_openrouter(monkeypatch):
     pipeline = object.__new__(RagPipeline)
     pipeline.openrouter_api_key = "test-key"
     pipeline.openrouter_model = "test-model"
+    pipeline.openrouter_fallback_model = "openrouter/free"
 
     search_results = [
         {
@@ -148,6 +150,37 @@ def test_answer_query_searches_builds_prompt_and_calls_openrouter(monkeypatch):
     answer, citations = pipeline.answer_query("Who approves remote work?", top_k=3)
 
     assert answer == "Manager approval is required. [Kaynak 1] "
+    assert citations == ["Kaynak 1: remote_work_policy.md"]
+
+
+def test_answer_query_falls_back_when_primary_model_is_rate_limited(monkeypatch):
+    pipeline = object.__new__(RagPipeline)
+    pipeline.openrouter_api_key = "test-key"
+    pipeline.openrouter_model = "primary-model"
+    pipeline.openrouter_fallback_model = "openrouter/free"
+
+    search_results = [
+        {
+            "file_name": "remote_work_policy.md",
+            "text": "Remote work requires manager approval.",
+        }
+    ]
+    seen_models = []
+
+    monkeypatch.setattr(pipeline, "search", lambda question, top_k=5: search_results)
+
+    def fake_query_openrouter(api_key, model, prompt, max_tokens=512, retries=2):
+        seen_models.append(model)
+        if model == "primary-model":
+            raise OpenRouterRateLimitError("primary rate limited")
+        return "Fallback answer. [Kaynak 1]"
+
+    monkeypatch.setattr(rag_pipeline, "query_openrouter", fake_query_openrouter)
+
+    answer, citations = pipeline.answer_query("Who approves remote work?")
+
+    assert seen_models == ["primary-model", "openrouter/free"]
+    assert answer == "Fallback answer. [Kaynak 1]"
     assert citations == ["Kaynak 1: remote_work_policy.md"]
 
 

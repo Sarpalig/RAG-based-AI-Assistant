@@ -5,12 +5,13 @@ from src.generation import OpenRouterError, query_openrouter
 
 
 class FakeResponse:
-    def __init__(self, status_code=200, payload=None, text=""):
+    def __init__(self, status_code=200, payload=None, text="", headers=None):
         self.status_code = status_code
         self.payload = payload or {
             "choices": [{"message": {"content": "Merhaba"}}]
         }
         self.text = text
+        self.headers = headers or {}
 
     def raise_for_status(self):
         if self.status_code >= 400:
@@ -53,9 +54,35 @@ def test_query_openrouter_raises_readable_http_error(monkeypatch):
         query_openrouter("bad-key", "test-model", "Selam")
 
 
-def test_query_openrouter_retries_rate_limit(monkeypatch):
+def test_query_openrouter_does_not_retry_rate_limit(monkeypatch):
+    calls = []
+
+    def fake_post(url, headers, json, timeout):
+        calls.append(url)
+        return FakeResponse(
+            status_code=429,
+            text="rate limit",
+            headers={"Retry-After": "60"},
+        )
+
+    monkeypatch.setattr("src.generation.requests.post", fake_post)
+    monkeypatch.setattr("src.generation.time.sleep", lambda delay: None)
+
+    with pytest.raises(OpenRouterError, match="rate limit"):
+        query_openrouter(
+            "test-key",
+            "test-model",
+            "Selam",
+            retries=2,
+            retry_delay=0,
+        )
+
+    assert len(calls) == 1
+
+
+def test_query_openrouter_retries_server_error(monkeypatch):
     responses = [
-        FakeResponse(status_code=429, text="rate limit"),
+        FakeResponse(status_code=503, text="temporary error"),
         FakeResponse(payload={"choices": [{"message": {"content": "Son cevap"}}]}),
     ]
 

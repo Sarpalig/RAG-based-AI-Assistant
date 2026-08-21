@@ -8,13 +8,14 @@ from dotenv import load_dotenv
 
 from .chunking import split_text
 from .embeddings import EmbeddingModel
-from .generation import query_openrouter
+from .generation import OpenRouterRateLimitError, query_openrouter
 from .loaders import extract_text
 from .vector_store import (
     add_documents,
     create_chroma_client,
     delete_document,
     document_exists,
+    list_indexed_documents,
     similarity_search,
 )
 
@@ -36,6 +37,10 @@ class RagPipeline:
         )
         self.openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
         self.openrouter_model = os.getenv("OPENROUTER_MODEL")
+        self.openrouter_fallback_model = os.getenv(
+            "OPENROUTER_FALLBACK_MODEL",
+            "openrouter/free",
+        )
 
         self.client = create_chroma_client(self.chroma_dir)
         self.collection = self.client.get_or_create_collection(
@@ -91,6 +96,9 @@ class RagPipeline:
 
     def delete_document(self, document_hash):
         delete_document(self.collection, document_hash)
+
+    def list_indexed_documents(self):
+        return list_indexed_documents(self.collection)
 
     def search(self, question, top_k=5):
         query_embedding = self.embedding_model.embed_query(question)
@@ -170,15 +178,33 @@ Kaynaklar:
 
         prompt = self.build_rag_prompt(question, search_results)
 
-        answer = query_openrouter(
-            api_key=self.openrouter_api_key,
-            model=self.openrouter_model,
-            prompt=prompt,
-            max_tokens=512,
-        )
+        answer = self._query_llm(prompt)
         citations = self.build_citations(search_results)
-        answer = self.filter_invali7d_citations(answer, len(citations))
+        answer = self.filter_invalid_citations(answer, len(citations))
         return answer, citations
+
+    def _query_llm(self, prompt):
+        try:
+            return query_openrouter(
+                api_key=self.openrouter_api_key,
+                model=self.openrouter_model,
+                prompt=prompt,
+                max_tokens=512,
+            )
+        except OpenRouterRateLimitError:
+            if (
+                not self.openrouter_fallback_model
+                or self.openrouter_fallback_model == self.openrouter_model
+            ):
+                raise
+
+            return query_openrouter(
+                api_key=self.openrouter_api_key,
+                model=self.openrouter_fallback_model,
+                prompt=prompt,
+                max_tokens=512,
+                retries=0,
+            )
 
     @staticmethod
     def build_citations(results):
