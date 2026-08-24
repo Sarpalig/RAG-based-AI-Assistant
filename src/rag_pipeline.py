@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 from .chunking import split_text
 from .embeddings import EmbeddingModel
-from .generation import OpenRouterRateLimitError, query_openrouter
+from .generation import query_llm
 from .loaders import extract_text
 from .vector_store import (
     add_documents,
@@ -35,6 +35,9 @@ class RagPipeline:
             "EMBEDDING_MODEL_NAME",
             "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
         )
+        self.llm_provider = os.getenv("LLM_PROVIDER", "ollama")
+        self.ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+        self.ollama_model = os.getenv("OLLAMA_MODEL", "qwen3.5:9b")
         self.openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
         self.openrouter_model = os.getenv("OPENROUTER_MODEL")
         self.openrouter_fallback_model = os.getenv(
@@ -184,27 +187,16 @@ Kaynaklar:
         return answer, citations
 
     def _query_llm(self, prompt):
-        try:
-            return query_openrouter(
-                api_key=self.openrouter_api_key,
-                model=self.openrouter_model,
-                prompt=prompt,
-                max_tokens=512,
-            )
-        except OpenRouterRateLimitError:
-            if (
-                not self.openrouter_fallback_model
-                or self.openrouter_fallback_model == self.openrouter_model
-            ):
-                raise
-
-            return query_openrouter(
-                api_key=self.openrouter_api_key,
-                model=self.openrouter_fallback_model,
-                prompt=prompt,
-                max_tokens=512,
-                retries=0,
-            )
+        return query_llm(
+            provider=self.llm_provider,
+            prompt=prompt,
+            max_tokens=512,
+            openrouter_api_key=self.openrouter_api_key,
+            openrouter_model=self.openrouter_model,
+            openrouter_fallback_model=self.openrouter_fallback_model,
+            ollama_base_url=self.ollama_base_url,
+            ollama_model=self.ollama_model,
+        )
 
     @staticmethod
     def build_citations(results):

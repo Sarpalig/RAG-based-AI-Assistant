@@ -3,12 +3,108 @@ import time
 import requests
 
 
-class OpenRouterError(Exception):
+class LLMError(Exception):
+    """Raised when an LLM provider cannot return a usable answer."""
+
+
+class OpenRouterError(LLMError):
     """Raised when an OpenRouter request cannot return a usable answer."""
 
 
 class OpenRouterRateLimitError(OpenRouterError):
     """Raised when OpenRouter or an upstream provider returns HTTP 429."""
+
+
+class OllamaError(LLMError):
+    """Raised when Ollama cannot return a usable answer."""
+
+
+def query_llm(
+    provider,
+    prompt,
+    max_tokens=512,
+    openrouter_api_key=None,
+    openrouter_model=None,
+    openrouter_fallback_model=None,
+    ollama_base_url="http://localhost:11434",
+    ollama_model="qwen3.5:9b",
+):
+    provider = (provider or "ollama").lower()
+
+    if provider == "ollama":
+        return query_ollama(
+            base_url=ollama_base_url,
+            model=ollama_model,
+            prompt=prompt,
+            max_tokens=max_tokens,
+        )
+
+    if provider == "openrouter":
+        try:
+            return query_openrouter(
+                api_key=openrouter_api_key,
+                model=openrouter_model,
+                prompt=prompt,
+                max_tokens=max_tokens,
+            )
+        except OpenRouterRateLimitError:
+            if (
+                not openrouter_fallback_model
+                or openrouter_fallback_model == openrouter_model
+            ):
+                raise
+
+            return query_openrouter(
+                api_key=openrouter_api_key,
+                model=openrouter_fallback_model,
+                prompt=prompt,
+                max_tokens=max_tokens,
+                retries=0,
+            )
+
+    raise LLMError(f"Unsupported LLM_PROVIDER: {provider}")
+
+
+def query_ollama(
+    base_url,
+    model,
+    prompt,
+    max_tokens=512,
+    timeout=120,
+):
+    if not base_url:
+        raise OllamaError("OLLAMA_BASE_URL is missing.")
+    if not model:
+        raise OllamaError("OLLAMA_MODEL is missing.")
+    if not prompt or not prompt.strip():
+        raise OllamaError("Prompt cannot be empty.")
+
+    url = f"{base_url.rstrip('/')}/api/chat"
+    payload = {
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}],
+        "stream": False,
+        "options": {
+            "temperature": 0.2,
+            "num_predict": max_tokens,
+        },
+    }
+
+    try:
+        response = requests.post(url, json=payload, timeout=timeout)
+        response.raise_for_status()
+        data = response.json()
+        return data["message"]["content"]
+    except requests.HTTPError as exc:
+        raise OllamaError(_format_ollama_http_error(exc)) from exc
+    except (requests.Timeout, requests.ConnectionError) as exc:
+        raise OllamaError(
+            f"Ollama request failed. Is Ollama running at {base_url}? {exc}"
+        ) from exc
+    except requests.RequestException as exc:
+        raise OllamaError(f"Ollama request failed: {exc}") from exc
+    except (KeyError, TypeError, ValueError) as exc:
+        raise OllamaError("Ollama returned an unexpected response format.") from exc
 
 
 def query_openrouter(
@@ -85,3 +181,12 @@ def _format_rate_limit_error(error):
     response_text = response.text[:500] if response.text else ""
     details = f" Details: {response_text}" if response_text else ""
     return f"OpenRouter rate limit reached (HTTP 429).{wait_hint}{details}"
+
+
+def _format_ollama_http_error(error):
+    response = error.response
+    if response is None:
+        return f"Ollama HTTP error: {error}"
+
+    response_text = response.text[:500] if response.text else ""
+    return f"Ollama HTTP {response.status_code}: {response_text}"

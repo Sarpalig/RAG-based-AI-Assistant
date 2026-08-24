@@ -1,5 +1,4 @@
 from src import rag_pipeline
-from src.generation import OpenRouterRateLimitError
 from src.rag_pipeline import RagPipeline
 
 
@@ -120,6 +119,9 @@ def test_build_rag_prompt_includes_rules_question_and_sources():
 
 def test_answer_query_searches_builds_prompt_and_calls_openrouter(monkeypatch):
     pipeline = object.__new__(RagPipeline)
+    pipeline.llm_provider = "ollama"
+    pipeline.ollama_base_url = "http://localhost:11434"
+    pipeline.ollama_model = "qwen3.5:9b"
     pipeline.openrouter_api_key = "test-key"
     pipeline.openrouter_model = "test-model"
     pipeline.openrouter_fallback_model = "openrouter/free"
@@ -136,16 +138,29 @@ def test_answer_query_searches_builds_prompt_and_calls_openrouter(monkeypatch):
         assert top_k == 3
         return search_results
 
-    def fake_query_openrouter(api_key, model, prompt, max_tokens=512):
-        assert api_key == "test-key"
-        assert model == "test-model"
+    def fake_query_llm(
+        provider,
+        prompt,
+        max_tokens=512,
+        openrouter_api_key=None,
+        openrouter_model=None,
+        openrouter_fallback_model=None,
+        ollama_base_url=None,
+        ollama_model=None,
+    ):
+        assert provider == "ollama"
+        assert openrouter_api_key == "test-key"
+        assert openrouter_model == "test-model"
+        assert openrouter_fallback_model == "openrouter/free"
+        assert ollama_base_url == "http://localhost:11434"
+        assert ollama_model == "qwen3.5:9b"
         assert "Who approves remote work?" in prompt
         assert "Remote work requires manager approval." in prompt
         assert max_tokens == 512
         return "Manager approval is required. [Kaynak 1] [Kaynak 99]"
 
     monkeypatch.setattr(pipeline, "search", fake_search)
-    monkeypatch.setattr(rag_pipeline, "query_openrouter", fake_query_openrouter)
+    monkeypatch.setattr(rag_pipeline, "query_llm", fake_query_llm)
 
     answer, citations = pipeline.answer_query("Who approves remote work?", top_k=3)
 
@@ -153,35 +168,35 @@ def test_answer_query_searches_builds_prompt_and_calls_openrouter(monkeypatch):
     assert citations == ["Kaynak 1: remote_work_policy.md"]
 
 
-def test_answer_query_falls_back_when_primary_model_is_rate_limited(monkeypatch):
+def test_query_llm_receives_openrouter_fallback_model(monkeypatch):
     pipeline = object.__new__(RagPipeline)
+    pipeline.llm_provider = "openrouter"
+    pipeline.ollama_base_url = "http://localhost:11434"
+    pipeline.ollama_model = "qwen3.5:9b"
     pipeline.openrouter_api_key = "test-key"
     pipeline.openrouter_model = "primary-model"
     pipeline.openrouter_fallback_model = "openrouter/free"
 
-    search_results = [
-        {
-            "file_name": "remote_work_policy.md",
-            "text": "Remote work requires manager approval.",
-        }
-    ]
-    seen_models = []
+    def fake_query_llm(
+        provider,
+        prompt,
+        max_tokens=512,
+        openrouter_api_key=None,
+        openrouter_model=None,
+        openrouter_fallback_model=None,
+        ollama_base_url=None,
+        ollama_model=None,
+    ):
+        assert provider == "openrouter"
+        assert openrouter_model == "primary-model"
+        assert openrouter_fallback_model == "openrouter/free"
+        return "OpenRouter answer"
 
-    monkeypatch.setattr(pipeline, "search", lambda question, top_k=5: search_results)
+    monkeypatch.setattr(rag_pipeline, "query_llm", fake_query_llm)
 
-    def fake_query_openrouter(api_key, model, prompt, max_tokens=512, retries=2):
-        seen_models.append(model)
-        if model == "primary-model":
-            raise OpenRouterRateLimitError("primary rate limited")
-        return "Fallback answer. [Kaynak 1]"
+    answer = pipeline._query_llm("prompt")
 
-    monkeypatch.setattr(rag_pipeline, "query_openrouter", fake_query_openrouter)
-
-    answer, citations = pipeline.answer_query("Who approves remote work?")
-
-    assert seen_models == ["primary-model", "openrouter/free"]
-    assert answer == "Fallback answer. [Kaynak 1]"
-    assert citations == ["Kaynak 1: remote_work_policy.md"]
+    assert answer == "OpenRouter answer"
 
 
 def test_answer_query_returns_not_found_when_no_search_results(monkeypatch):

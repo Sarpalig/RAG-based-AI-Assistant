@@ -1,6 +1,6 @@
 import streamlit as st
 
-from src.generation import OpenRouterError
+from src.generation import LLMError
 from src.loaders import DocumentLoaderError
 from src.rag_pipeline import RagPipeline
 
@@ -14,17 +14,17 @@ def load_pipeline():
     progress = st.progress(0)
     status = st.empty()
 
-    status.info("RAG pipeline baslatiliyor...")
+    status.info("RAG pipeline başlıyor...")
     progress.progress(20)
 
-    status.info("Embedding modeli ve vector store hazirlaniyor...")
+    status.info("Embedding modeli ve vector store hazırlanıyor...")
     pipeline = get_pipeline()
     if not hasattr(pipeline, "list_indexed_documents"):
         get_pipeline.clear()
         pipeline = get_pipeline()
 
     progress.progress(100)
-    status.success("RAG pipeline hazir.")
+    status.success("RAG pipeline tamamlandı.")
 
     return pipeline
 
@@ -55,25 +55,25 @@ def refresh_indexed_documents(rag):
 
 
 def show_indexed_documents():
-    st.write("#### Indekslenen belgeler")
+    st.write("#### Yüklenen belgeler")
 
     if not st.session_state.indexed_documents:
-        st.caption("Henuz indekslenen belge yok.")
+        st.caption("Henüz yüklenen belge yok.")
         return
 
     rows = []
     for document in st.session_state.indexed_documents.values():
         if document["skipped"]:
-            status = "Zaten indeksli"
+            status = "Zaten yüklü"
         elif document["chunk_count"] > 0:
-            status = "Indekslendi"
+            status = "Hazır"
         else:
-            status = "Metin bulunamadi"
+            status = "Metin bulunamadı"
 
         rows.append(
             {
                 "Dosya": document["file_name"],
-                "Chunk sayisi": document["chunk_count"],
+                "Parça sayısı": document["chunk_count"],
                 "Durum": status,
             }
         )
@@ -83,34 +83,34 @@ def show_indexed_documents():
 
 def index_uploaded_files(uploaded_files):
     if not uploaded_files:
-        st.warning("Once en az bir belge yukleyin.")
+        st.warning("Önce en az bir belge yükleyin.")
         return
 
     try:
         rag = load_pipeline()
     except Exception as exc:
-        st.error(f"Pipeline baslatilirken hata olustu: {exc}")
+        st.error(f"Pipeline başlatılırken hata oluştu: {exc}")
         return
 
-    with st.spinner("Belgeler indeksleniyor..."):
+    with st.spinner("Belgeler hazırlanıyor..."):
         for uploaded_file in uploaded_files:
             try:
                 result = rag.index_file(uploaded_file, uploaded_file.name)
                 remember_index_result(result)
 
                 if result["skipped"]:
-                    st.info(f"{result['file_name']} zaten indeksli.")
+                    st.info(f"{result['file_name']} zaten yüklü.")
                 elif result["chunk_count"] > 0:
                     st.success(
-                        f"{result['file_name']} indekslendi "
-                        f"({result['chunk_count']} chunk)."
+                        f"{result['file_name']} hazırlandı "
+                        f"({result['chunk_count']} parça)."
                     )
                 else:
                     st.warning(f"{result['file_name']} icinde okunabilir metin bulunamadi.")
             except DocumentLoaderError as exc:
                 st.error(f"{uploaded_file.name}: {exc}")
             except Exception as exc:
-                st.error(f"{uploaded_file.name}: Indeksleme sirasinda hata olustu: {exc}")
+                st.error(f"{uploaded_file.name}: Belge hazırlanırken hata oluştu: {exc}")
 
     refresh_indexed_documents(rag)
 
@@ -119,9 +119,9 @@ def refresh_document_list():
     try:
         rag = load_pipeline()
         refresh_indexed_documents(rag)
-        st.success("Indekslenen belge listesi yenilendi.")
+        st.success("Yüklenen belge listesi yenilendi.")
     except Exception as exc:
-        st.error(f"Belge listesi yenilenirken hata olustu: {exc}")
+        st.error(f"Belge listesi yenilenirken hata oluştu: {exc}")
 
 
 def answer_question(query):
@@ -131,13 +131,13 @@ def answer_question(query):
 
     try:
         rag = load_pipeline()
-        with st.spinner("Cevap hazirlaniyor..."):
+        with st.spinner("Cevap hazırlanıyor..."):
             answer, citations = rag.answer_query(query)
-    except OpenRouterError as exc:
-        st.error(f"LLM/API hatasi: {exc}")
+    except LLMError as exc:
+        st.error(f"LLM hatası: {exc}")
         return
     except Exception as exc:
-        st.error(f"Soru cevaplanirken hata olustu: {exc}")
+        st.error(f"Soru cevaplanırken hata oluştu: {exc}")
         return
 
     st.write("### Cevap")
@@ -148,23 +148,23 @@ def answer_question(query):
             for citation in citations:
                 st.write(f"- {citation}")
     else:
-        st.info("Bu cevap icin gosterilecek kaynak bulunamadi.")
+        st.info("Bu cevap için gösterilecek kaynak bulunamadı.")
 
 
 def main():
-    st.set_page_config(page_title="Kurumsal Dokuman Asistani", layout="wide")
+    st.set_page_config(page_title="Kurumsal Doküman Asistanı", layout="wide")
     initialize_session_state()
 
-    st.title("Kurumsal Dokuman Asistani")
-    st.info("PDF, DOCX ve Markdown belgelerinden kaynakli yanitlar ureten RAG uygulamasi.")
+    st.title("Kurumsal Doküman Asistanı")
+    st.info("PDF, DOCX ve Markdown belgelerinden kaynaklı yanıtlar üreten RAG uygulaması.")
 
-    with st.expander("Belge yukleme ve indeksleme", expanded=True):
+    with st.expander("Belge yükleme", expanded=True):
         uploaded_files = st.file_uploader(
-            "Belgeleri yukleyin",
+            "Belgeleri yükleyin",
             type=["pdf", "docx", "md"],
             accept_multiple_files=True,
         )
-        if st.button("Dokumani isle", type="primary"):
+        if st.button("Belgeleri hazırla", type="primary"):
             index_uploaded_files(uploaded_files)
 
         if st.button("Listeyi yenile"):
