@@ -84,6 +84,7 @@ def query_ollama(
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
         "stream": False,
+        "think": False,
         "options": {
             "temperature": 0.2,
             "num_predict": max_tokens,

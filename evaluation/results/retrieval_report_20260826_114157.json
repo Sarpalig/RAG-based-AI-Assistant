@@ -1,0 +1,1571 @@
+{
+  "top_k": 5,
+  "total": 30,
+  "correct": 30,
+  "recall": 1.0,
+  "by_category": {
+    "single_chunk": {
+      "total": 18,
+      "correct": 18,
+      "recall": 1.0
+    },
+    "multi_fact": {
+      "total": 2,
+      "correct": 2,
+      "recall": 1.0
+    },
+    "cross_language": {
+      "total": 2,
+      "correct": 2,
+      "recall": 1.0
+    },
+    "misleading": {
+      "total": 8,
+      "correct": 8,
+      "recall": 1.0
+    }
+  },
+  "details": [
+    {
+      "question": "Uzaktan çalışma için kimden onay alınmalıdır?",
+      "category": "single_chunk",
+      "answerable": true,
+      "expected_answer": "Birim yöneticisinden",
+      "expected_file": "remote_work_policy.md",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "remote_work_policy.md",
+        "travel_expense_policy.pdf",
+        "remote_work_policy.md",
+        "onboarding_process.docx",
+        "security_guidelines.md"
+      ],
+      "top_results": [
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 10.179855346679688
+        },
+        {
+          "file_name": "travel_expense_policy.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 13.900289535522461
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 15.15869140625
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 5,
+          "distance": 17.059032440185547
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 17.784988403320312
+        }
+      ]
+    },
+    {
+      "question": "Uzaktan çalışma talebi ne kadar önce iletilmelidir?",
+      "category": "single_chunk",
+      "answerable": true,
+      "expected_answer": "En az 3 gün önceden",
+      "expected_file": "remote_work_policy.md",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "remote_work_policy.md",
+        "travel_expense_policy.pdf",
+        "remote_work_policy.md",
+        "onboarding_process.docx",
+        "onboarding_process.docx"
+      ],
+      "top_results": [
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 6.902072429656982
+        },
+        {
+          "file_name": "travel_expense_policy.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 11.685781478881836
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 14.075668334960938
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 2,
+          "distance": 14.960226058959961
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 1,
+          "distance": 18.97858428955078
+        }
+      ]
+    },
+    {
+      "question": "Uzaktan çalışanlar hangi çalışma saatlerine uymalıdır?",
+      "category": "single_chunk",
+      "answerable": true,
+      "expected_answer": "Normal çalışma saatlerine",
+      "expected_file": "remote_work_policy.md",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "remote_work_policy.md",
+        "remote_work_policy.md",
+        "onboarding_process.docx",
+        "travel_expense_policy.pdf",
+        "onboarding_process.docx"
+      ],
+      "top_results": [
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 8.928142547607422
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 9.159685134887695
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 2,
+          "distance": 15.6984281539917
+        },
+        {
+          "file_name": "travel_expense_policy.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 16.839412689208984
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 5,
+          "distance": 17.265892028808594
+        }
+      ]
+    },
+    {
+      "question": "Çalışanların günlük raporları ne zaman yüklenmelidir?",
+      "category": "single_chunk",
+      "answerable": true,
+      "expected_answer": "Her akşam",
+      "expected_file": "remote_work_policy.md",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "remote_work_policy.md",
+        "onboarding_process.docx",
+        "remote_work_policy.md",
+        "travel_expense_policy.pdf",
+        "onboarding_process.docx"
+      ],
+      "top_results": [
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 10.573216438293457
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 2,
+          "distance": 12.634838104248047
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 13.485102653503418
+        },
+        {
+          "file_name": "travel_expense_policy.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 14.990762710571289
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 5,
+          "distance": 16.545085906982422
+        }
+      ]
+    },
+    {
+      "question": "İş bilgisayarları hangi hesaplarla kullanılmalıdır?",
+      "category": "single_chunk",
+      "answerable": true,
+      "expected_answer": "Şirket tarafından verilen hesaplarla",
+      "expected_file": "remote_work_policy.md",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "remote_work_policy.md",
+        "security_guidelines.md",
+        "onboarding_process.docx",
+        "security_guidelines.md",
+        "onboarding_process.docx"
+      ],
+      "top_results": [
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 13.169219970703125
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 14.197827339172363
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 4,
+          "distance": 15.932538032531738
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 18.383699417114258
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 5,
+          "distance": 20.177003860473633
+        }
+      ]
+    },
+    {
+      "question": "Kişisel cihazlar üzerinden hangi veriler paylaşılmamalıdır?",
+      "category": "single_chunk",
+      "answerable": true,
+      "expected_answer": "Hassas veriler",
+      "expected_file": "remote_work_policy.md",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "remote_work_policy.md",
+        "security_guidelines.md",
+        "onboarding_process.docx",
+        "remote_work_policy.md",
+        "security_guidelines.md"
+      ],
+      "top_results": [
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 6.596356391906738
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 15.267499923706055
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 4,
+          "distance": 23.223499298095703
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 23.359127044677734
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 24.272186279296875
+        }
+      ]
+    },
+    {
+      "question": "Şifrelerde en az kaç karakter bulunmalıdır?",
+      "category": "single_chunk",
+      "answerable": true,
+      "expected_answer": "12 karakter",
+      "expected_file": "security_guidelines.md",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "security_guidelines.md",
+        "security_guidelines.md",
+        "remote_work_policy.md",
+        "travel_expense_policy.pdf",
+        "onboarding_process.docx"
+      ],
+      "top_results": [
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 14.44736385345459
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 22.200206756591797
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 24.62000846862793
+        },
+        {
+          "file_name": "travel_expense_policy.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 24.971961975097656
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 4,
+          "distance": 28.65375518798828
+        }
+      ]
+    },
+    {
+      "question": "Şifreler hangi karakter türlerini içermelidir?",
+      "category": "single_chunk",
+      "answerable": true,
+      "expected_answer": "Büyük harf, küçük harf, rakam ve özel karakter",
+      "expected_file": "security_guidelines.md",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "security_guidelines.md",
+        "security_guidelines.md",
+        "remote_work_policy.md",
+        "travel_expense_policy.pdf",
+        "onboarding_process.docx"
+      ],
+      "top_results": [
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 15.891767501831055
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 20.237157821655273
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 24.032007217407227
+        },
+        {
+          "file_name": "travel_expense_policy.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 25.712743759155273
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 5,
+          "distance": 27.141725540161133
+        }
+      ]
+    },
+    {
+      "question": "Hangi güvenlik yöntemi şirket hesabı için zorunludur?",
+      "category": "single_chunk",
+      "answerable": true,
+      "expected_answer": "İki faktörlü doğrulama",
+      "expected_file": "security_guidelines.md",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 2,
+      "returned_files": [
+        "onboarding_process.docx",
+        "security_guidelines.md",
+        "security_guidelines.md",
+        "remote_work_policy.md",
+        "onboarding_process.docx"
+      ],
+      "top_results": [
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 5,
+          "distance": 10.358384132385254
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 11.15601921081543
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 13.937297821044922
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 14.327457427978516
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 4,
+          "distance": 17.151897430419922
+        }
+      ]
+    },
+    {
+      "question": "İki faktörlü doğrulama hangi amaçla zorunludur?",
+      "category": "single_chunk",
+      "answerable": true,
+      "expected_answer": "Hesabın güvenliğini artırmak",
+      "expected_file": "security_guidelines.md",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "security_guidelines.md",
+        "security_guidelines.md",
+        "travel_expense_policy.pdf",
+        "onboarding_process.docx",
+        "remote_work_policy.md"
+      ],
+      "top_results": [
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 14.599794387817383
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 16.202144622802734
+        },
+        {
+          "file_name": "travel_expense_policy.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 17.165538787841797
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 5,
+          "distance": 18.330642700195312
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 20.331056594848633
+        }
+      ]
+    },
+    {
+      "question": "Hassas verilere kimler erişebilir?",
+      "category": "single_chunk",
+      "answerable": true,
+      "expected_answer": "Yalnızca yetkili personel",
+      "expected_file": "security_guidelines.md",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "security_guidelines.md",
+        "security_guidelines.md",
+        "remote_work_policy.md",
+        "travel_expense_policy.pdf",
+        "remote_work_policy.md"
+      ],
+      "top_results": [
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 9.39305305480957
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 16.715797424316406
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 17.723834991455078
+        },
+        {
+          "file_name": "travel_expense_policy.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 18.060232162475586
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 18.85611915588379
+        }
+      ]
+    },
+    {
+      "question": "Şirket içi belgeler hangi sınıflar ile etiketlenmelidir?",
+      "category": "single_chunk",
+      "answerable": true,
+      "expected_answer": "Özel, Kurumsal veya Genel",
+      "expected_file": "security_guidelines.md",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "security_guidelines.md",
+        "onboarding_process.docx",
+        "security_guidelines.md",
+        "travel_expense_policy.pdf",
+        "remote_work_policy.md"
+      ],
+      "top_results": [
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 12.393830299377441
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 5,
+          "distance": 16.637014389038086
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 17.336395263671875
+        },
+        {
+          "file_name": "travel_expense_policy.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 19.644548416137695
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 20.134187698364258
+        }
+      ]
+    },
+    {
+      "question": "Yeni çalışan ilk gün neyi tamamlamalıdır?",
+      "category": "single_chunk",
+      "answerable": true,
+      "expected_answer": "Şirket giriş prosedürlerini",
+      "expected_file": "onboarding_process.docx",
+      "expected_page": null,
+      "expected_paragraph": 2,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "onboarding_process.docx",
+        "remote_work_policy.md",
+        "onboarding_process.docx",
+        "remote_work_policy.md",
+        "travel_expense_policy.pdf"
+      ],
+      "top_results": [
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 2,
+          "distance": 5.244704246520996
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 15.74951457977295
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 1,
+          "distance": 17.70245933532715
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 18.30447006225586
+        },
+        {
+          "file_name": "travel_expense_policy.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 19.639484405517578
+        }
+      ]
+    },
+    {
+      "question": "Yeni çalışanın ilk tanışma toplantısı kimle planlanır?",
+      "category": "single_chunk",
+      "answerable": true,
+      "expected_answer": "İnsan kaynakları ile",
+      "expected_file": "onboarding_process.docx",
+      "expected_page": null,
+      "expected_paragraph": 3,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "onboarding_process.docx",
+        "onboarding_process.docx",
+        "remote_work_policy.md",
+        "onboarding_process.docx",
+        "travel_expense_policy.pdf"
+      ],
+      "top_results": [
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 3,
+          "distance": 10.278059959411621
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 2,
+          "distance": 11.34101390838623
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 16.305828094482422
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 5,
+          "distance": 16.97947883605957
+        },
+        {
+          "file_name": "travel_expense_policy.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 17.398775100708008
+        }
+      ]
+    },
+    {
+      "question": "Yeni çalışan için bilgisayar ve erişim haklarını hangi ekip hazırlar?",
+      "category": "single_chunk",
+      "answerable": true,
+      "expected_answer": "IT ekibi",
+      "expected_file": "onboarding_process.docx",
+      "expected_page": null,
+      "expected_paragraph": 4,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "onboarding_process.docx",
+        "onboarding_process.docx",
+        "security_guidelines.md",
+        "remote_work_policy.md",
+        "onboarding_process.docx"
+      ],
+      "top_results": [
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 4,
+          "distance": 8.146841049194336
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 5,
+          "distance": 14.101255416870117
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 14.956079483032227
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 15.161283493041992
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 2,
+          "distance": 17.823814392089844
+        }
+      ]
+    },
+    {
+      "question": "Onboarding sonunda çalışanlara hangi konular anlatılır?",
+      "category": "single_chunk",
+      "answerable": true,
+      "expected_answer": "Şirket politikaları ve güvenlik kuralları",
+      "expected_file": "onboarding_process.docx",
+      "expected_page": null,
+      "expected_paragraph": 5,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "onboarding_process.docx",
+        "remote_work_policy.md",
+        "onboarding_process.docx",
+        "onboarding_process.docx",
+        "travel_expense_policy.pdf"
+      ],
+      "top_results": [
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 1,
+          "distance": 8.8556547164917
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 15.981500625610352
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 5,
+          "distance": 16.81644630432129
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 2,
+          "distance": 17.23815155029297
+        },
+        {
+          "file_name": "travel_expense_policy.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 19.134197235107422
+        }
+      ]
+    },
+    {
+      "question": "Harcama talepleri ne zaman yöneticilere iletilmelidir?",
+      "category": "single_chunk",
+      "answerable": true,
+      "expected_answer": "Ay sonundan önce",
+      "expected_file": "travel_expense_policy.pdf",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "travel_expense_policy.pdf",
+        "remote_work_policy.md",
+        "onboarding_process.docx",
+        "security_guidelines.md",
+        "onboarding_process.docx"
+      ],
+      "top_results": [
+        {
+          "file_name": "travel_expense_policy.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 6.040249347686768
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 11.017069816589355
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 5,
+          "distance": 12.264841079711914
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 13.612325668334961
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 2,
+          "distance": 13.875
+        }
+      ]
+    },
+    {
+      "question": "Yol gideri politikasına göre talepler kime iletilmelidir?",
+      "category": "single_chunk",
+      "answerable": true,
+      "expected_answer": "Yöneticilere",
+      "expected_file": "travel_expense_policy.pdf",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "travel_expense_policy.pdf",
+        "remote_work_policy.md",
+        "security_guidelines.md",
+        "onboarding_process.docx",
+        "remote_work_policy.md"
+      ],
+      "top_results": [
+        {
+          "file_name": "travel_expense_policy.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 4.995345115661621
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 15.21480941772461
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 17.044328689575195
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 5,
+          "distance": 19.701459884643555
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 20.403491973876953
+        }
+      ]
+    },
+    {
+      "question": "Uzaktan çalışma onayı ve talep süresi birlikte nedir?",
+      "category": "multi_fact",
+      "answerable": true,
+      "expected_answer": "Onay birim yöneticisinden alınır ve talep en az 3 gün önceden iletilir",
+      "expected_file": "remote_work_policy.md",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "remote_work_policy.md",
+        "travel_expense_policy.pdf",
+        "remote_work_policy.md",
+        "onboarding_process.docx",
+        "onboarding_process.docx"
+      ],
+      "top_results": [
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 8.17301082611084
+        },
+        {
+          "file_name": "travel_expense_policy.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 13.239288330078125
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 14.081734657287598
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 2,
+          "distance": 17.28367042541504
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 5,
+          "distance": 17.618303298950195
+        }
+      ]
+    },
+    {
+      "question": "Şifre kuralı ve iki faktörlü doğrulama hangi belgede anlatılır?",
+      "category": "multi_fact",
+      "answerable": true,
+      "expected_answer": "Güvenlik Yönergeleri",
+      "expected_file": "security_guidelines.md",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "security_guidelines.md",
+        "security_guidelines.md",
+        "onboarding_process.docx",
+        "travel_expense_policy.pdf",
+        "remote_work_policy.md"
+      ],
+      "top_results": [
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 12.53007698059082
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 12.618789672851562
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 5,
+          "distance": 14.836545944213867
+        },
+        {
+          "file_name": "travel_expense_policy.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 15.909716606140137
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 18.349414825439453
+        }
+      ]
+    },
+    {
+      "question": "Who must approve remote work requests?",
+      "category": "cross_language",
+      "answerable": true,
+      "expected_answer": "The unit manager",
+      "expected_file": "remote_work_policy.md",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "remote_work_policy.md",
+        "remote_work_policy.md",
+        "travel_expense_policy.pdf",
+        "security_guidelines.md",
+        "onboarding_process.docx"
+      ],
+      "top_results": [
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 19.765369415283203
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 20.751319885253906
+        },
+        {
+          "file_name": "travel_expense_policy.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 23.679420471191406
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 24.049541473388672
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 4,
+          "distance": 24.72884750366211
+        }
+      ]
+    },
+    {
+      "question": "What is the minimum password length?",
+      "category": "cross_language",
+      "answerable": true,
+      "expected_answer": "12 characters",
+      "expected_file": "security_guidelines.md",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "security_guidelines.md",
+        "security_guidelines.md",
+        "remote_work_policy.md",
+        "onboarding_process.docx",
+        "travel_expense_policy.pdf"
+      ],
+      "top_results": [
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 27.82443618774414
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 32.94307327270508
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 36.22731399536133
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 4,
+          "distance": 39.7780647277832
+        },
+        {
+          "file_name": "travel_expense_policy.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 40.11116027832031
+        }
+      ]
+    },
+    {
+      "question": "Uzaktan çalışma onayı insan kaynaklarından mı alınmalıdır?",
+      "category": "misleading",
+      "answerable": true,
+      "expected_answer": "Hayır, onay birim yöneticisinden alınmalıdır",
+      "expected_file": "remote_work_policy.md",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "remote_work_policy.md",
+        "travel_expense_policy.pdf",
+        "remote_work_policy.md",
+        "security_guidelines.md",
+        "onboarding_process.docx"
+      ],
+      "top_results": [
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 11.988101959228516
+        },
+        {
+          "file_name": "travel_expense_policy.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 14.236628532409668
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 17.087966918945312
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 18.13953399658203
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 3,
+          "distance": 20.18267250061035
+        }
+      ]
+    },
+    {
+      "question": "Uzaktan çalışma talebini aynı gün iletmek yeterli midir?",
+      "category": "misleading",
+      "answerable": true,
+      "expected_answer": "Hayır, talep en az 3 gün önceden yöneticiye iletilmelidir",
+      "expected_file": "remote_work_policy.md",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "remote_work_policy.md",
+        "remote_work_policy.md",
+        "travel_expense_policy.pdf",
+        "onboarding_process.docx",
+        "onboarding_process.docx"
+      ],
+      "top_results": [
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 8.499295234680176
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 12.563149452209473
+        },
+        {
+          "file_name": "travel_expense_policy.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 14.342432022094727
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 2,
+          "distance": 16.376989364624023
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 1,
+          "distance": 20.775928497314453
+        }
+      ]
+    },
+    {
+      "question": "Şirket hesapları için iki faktörlü doğrulama isteğe bağlı mıdır?",
+      "category": "misleading",
+      "answerable": true,
+      "expected_answer": "Hayır, iki faktörlü doğrulama zorunludur",
+      "expected_file": "security_guidelines.md",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "security_guidelines.md",
+        "security_guidelines.md",
+        "onboarding_process.docx",
+        "remote_work_policy.md",
+        "travel_expense_policy.pdf"
+      ],
+      "top_results": [
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 12.24837875366211
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 14.768135070800781
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 5,
+          "distance": 15.952779769897461
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 17.474321365356445
+        },
+        {
+          "file_name": "travel_expense_policy.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 19.9427547454834
+        }
+      ]
+    },
+    {
+      "question": "Şifrelerde 8 karakter yeterli midir?",
+      "category": "misleading",
+      "answerable": true,
+      "expected_answer": "Hayır, şifrelerde en az 12 karakter bulunmalıdır",
+      "expected_file": "security_guidelines.md",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "security_guidelines.md",
+        "security_guidelines.md",
+        "remote_work_policy.md",
+        "travel_expense_policy.pdf",
+        "remote_work_policy.md"
+      ],
+      "top_results": [
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 16.012012481689453
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 27.593767166137695
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 29.527587890625
+        },
+        {
+          "file_name": "travel_expense_policy.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 30.910856246948242
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 32.01642990112305
+        }
+      ]
+    },
+    {
+      "question": "Hassas verilere tüm çalışanlar erişebilir mi?",
+      "category": "misleading",
+      "answerable": true,
+      "expected_answer": "Hayır, hassas verilere yalnızca yetkili personel erişebilir",
+      "expected_file": "security_guidelines.md",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "security_guidelines.md",
+        "remote_work_policy.md",
+        "remote_work_policy.md",
+        "security_guidelines.md",
+        "onboarding_process.docx"
+      ],
+      "top_results": [
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 8.687881469726562
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 11.201591491699219
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 14.081924438476562
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 14.421131134033203
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 5,
+          "distance": 15.386129379272461
+        }
+      ]
+    },
+    {
+      "question": "Yeni çalışanın bilgisayar ve erişim haklarını insan kaynakları mı hazırlar?",
+      "category": "misleading",
+      "answerable": true,
+      "expected_answer": "Hayır, bilgisayar ve erişim hakları IT ekibi tarafından hazırlanır",
+      "expected_file": "onboarding_process.docx",
+      "expected_page": null,
+      "expected_paragraph": 4,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "onboarding_process.docx",
+        "security_guidelines.md",
+        "remote_work_policy.md",
+        "onboarding_process.docx",
+        "remote_work_policy.md"
+      ],
+      "top_results": [
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 4,
+          "distance": 10.235036849975586
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 13.495967864990234
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 14.311359405517578
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 5,
+          "distance": 14.33454704284668
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 15.979354858398438
+        }
+      ]
+    },
+    {
+      "question": "Harcama talepleri ay sonundan sonra mı yöneticilere iletilmelidir?",
+      "category": "misleading",
+      "answerable": true,
+      "expected_answer": "Hayır, harcama talepleri ay sonundan önce yöneticilere iletilmelidir",
+      "expected_file": "travel_expense_policy.pdf",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "travel_expense_policy.pdf",
+        "remote_work_policy.md",
+        "onboarding_process.docx",
+        "remote_work_policy.md",
+        "security_guidelines.md"
+      ],
+      "top_results": [
+        {
+          "file_name": "travel_expense_policy.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 4.434351921081543
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 10.564318656921387
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 5,
+          "distance": 12.97677230834961
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 13.836101531982422
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 13.879648208618164
+        }
+      ]
+    },
+    {
+      "question": "Kişisel cihazlar üzerinden hassas veri paylaşımı serbest midir?",
+      "category": "misleading",
+      "answerable": true,
+      "expected_answer": "Hayır, kişisel cihazlar üzerinden hassas veriler paylaşılmamalıdır",
+      "expected_file": "remote_work_policy.md",
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "remote_work_policy.md",
+        "security_guidelines.md",
+        "onboarding_process.docx",
+        "remote_work_policy.md",
+        "security_guidelines.md"
+      ],
+      "top_results": [
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 8.69298267364502
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 14.964163780212402
+        },
+        {
+          "file_name": "onboarding_process.docx",
+          "page_number": null,
+          "paragraph_number": 4,
+          "distance": 21.422880172729492
+        },
+        {
+          "file_name": "remote_work_policy.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 23.684898376464844
+        },
+        {
+          "file_name": "security_guidelines.md",
+          "page_number": null,
+          "paragraph_number": null,
+          "distance": 24.13518714904785
+        }
+      ]
+    },
+    {
+      "question": "Çalışanlara öğle yemeği ücreti ne kadar ödenir?",
+      "category": "unanswerable",
+      "answerable": false,
+      "expected_file": null,
+      "expected_answer": "Cevap belgelerde bulunamaz",
+      "found": null,
+      "rank": null,
+      "returned_files": []
+    },
+    {
+      "question": "Şirketin yıllık izin süresi kaç gündür?",
+      "category": "unanswerable",
+      "answerable": false,
+      "expected_file": null,
+      "expected_answer": "Cevap belgelerde bulunamaz",
+      "found": null,
+      "rank": null,
+      "returned_files": []
+    }
+  ],
+  "metadata": {
+    "created_at": "2026-08-26T11:41:57.050189+00:00",
+    "duration_seconds": 9.013,
+    "question_count": 32,
+    "answerable_count": 30,
+    "unanswerable_count": 2,
+    "sample_document_dir": "C:\\NTT_Intern\\RAG-based-AI-Assistant\\data\\sample_documents",
+    "chroma_dir": "C:\\NTT_Intern\\RAG-based-AI-Assistant\\.tmp\\retrieval_eval_chroma",
+    "collection_name": "retrieval_eval",
+    "embedding_model_name": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "llm_provider": "ollama",
+    "ollama_model": "qwen3.5:9b",
+    "openrouter_model": "google/gemma-4-26b-a4b-it:free",
+    "environment": {
+      "CHROMA_DIR": "chroma_db",
+      "EMBEDDING_MODEL_NAME": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+      "LLM_PROVIDER": "ollama",
+      "OLLAMA_MODEL": "qwen3.5:9b",
+      "OPENROUTER_MODEL": "google/gemma-4-26b-a4b-it:free"
+    }
+  }
+}

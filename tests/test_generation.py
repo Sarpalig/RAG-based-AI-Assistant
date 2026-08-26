@@ -116,6 +116,7 @@ def test_query_ollama_returns_message_content(monkeypatch):
         assert json["model"] == "qwen3.5:9b"
         assert json["messages"][0]["content"] == "Selam"
         assert json["stream"] is False
+        assert json["think"] is False
         assert json["options"]["temperature"] == 0.2
         assert json["options"]["num_predict"] == 256
         assert timeout == 120

@@ -1,8 +1,15 @@
+import os
+
 import streamlit as st
+from dotenv import load_dotenv
 
 from src.generation import LLMError
 from src.loaders import DocumentLoaderError
 from src.rag_pipeline import RagPipeline
+from src.vector_store import create_chroma_client, list_indexed_documents
+
+
+DEFAULT_COLLECTION_NAME = "rag_documents"
 
 
 @st.cache_resource
@@ -32,6 +39,28 @@ def load_pipeline():
 def initialize_session_state():
     if "indexed_documents" not in st.session_state:
         st.session_state.indexed_documents = {}
+    if "indexed_documents_loaded" not in st.session_state:
+        st.session_state.indexed_documents_loaded = False
+
+
+def load_indexed_documents_on_startup():
+    if st.session_state.indexed_documents_loaded:
+        return
+
+    try:
+        load_dotenv()
+        chroma_dir = os.getenv("CHROMA_DIR", "chroma_db")
+        client = create_chroma_client(chroma_dir)
+        collection = client.get_or_create_collection(name=DEFAULT_COLLECTION_NAME)
+        documents = list_indexed_documents(collection)
+        st.session_state.indexed_documents = {
+            document["document_hash"]: document
+            for document in documents
+        }
+        st.session_state.indexed_documents_loaded = True
+    except Exception as exc:
+        st.session_state.indexed_documents_loaded = True
+        st.warning(f"Yüklü belge listesi okunamadı: {exc}")
 
 
 def remember_index_result(result):
@@ -154,6 +183,7 @@ def answer_question(query):
 def main():
     st.set_page_config(page_title="Kurumsal Doküman Asistanı", layout="wide")
     initialize_session_state()
+    load_indexed_documents_on_startup()
 
     st.title("Kurumsal Doküman Asistanı")
     st.info("PDF, DOCX ve Markdown belgelerinden kaynaklı yanıtlar üreten RAG uygulaması.")

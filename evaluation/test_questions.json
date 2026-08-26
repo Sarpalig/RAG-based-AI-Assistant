@@ -4,69 +4,260 @@
     "expected_answer": "Birim yöneticisinden",
     "expected_file": "remote_work_policy.md",
     "expected_page": 1,
-    "answerable": true
+    "answerable": true,
+    "category": "single_chunk"
   },
   {
     "question": "Uzaktan çalışma talebi ne kadar önce iletilmelidir?",
     "expected_answer": "En az 3 gün önceden",
     "expected_file": "remote_work_policy.md",
     "expected_page": 1,
-    "answerable": true
+    "answerable": true,
+    "category": "single_chunk"
   },
   {
-    "question": "Şifrelerde en az kaç karakter bulunmalıdır?",
-    "expected_answer": "12 karakter",
-    "expected_file": "security_guidelines.md",
+    "question": "Uzaktan çalışanlar hangi çalışma saatlerine uymalıdır?",
+    "expected_answer": "Normal çalışma saatlerine",
+    "expected_file": "remote_work_policy.md",
     "expected_page": 1,
-    "answerable": true
-  },
-  {
-    "question": "Hangi güvenlik yöntemi zorunludur?",
-    "expected_answer": "İki faktörlü doğrulama",
-    "expected_file": "security_guidelines.md",
-    "expected_page": 1,
-    "answerable": true
-  },
-  {
-    "question": "Yeni çalışan ilk gün neyi tamamlamalıdır?",
-    "expected_answer": "Şirket giriş prosedürlerini",
-    "expected_file": "onboarding_process.docx",
-    "expected_page": 1,
-    "answerable": true
-  },
-  {
-    "question": "Harcama talepleri ne zaman yöneticilere iletilmelidir?",
-    "expected_answer": "Ay sonundan önce",
-    "expected_file": "travel_expense_policy.pdf",
-    "expected_page": 1,
-    "answerable": true
-  },
-  {
-    "question": "Hassas veriler kime erişebilir?",
-    "expected_answer": "Yalnızca yetkili personel",
-    "expected_file": "security_guidelines.md",
-    "expected_page": 1,
-    "answerable": true
-  },
-  {
-    "question": "Şirket içi belgeler hangi sınıflar ile etiketlenmelidir?",
-    "expected_answer": "Özel, Kurumsal veya Genel",
-    "expected_file": "security_guidelines.md",
-    "expected_page": 1,
-    "answerable": true
-  },
-  {
-    "question": "Bu belgede cevap bulunmayan bir soru sorulursa ne olur?",
-    "expected_answer": "Cevap bulunamaz",
-    "expected_file": null,
-    "expected_page": null,
-    "answerable": false
+    "answerable": true,
+    "category": "single_chunk"
   },
   {
     "question": "Çalışanların günlük raporları ne zaman yüklenmelidir?",
     "expected_answer": "Her akşam",
     "expected_file": "remote_work_policy.md",
     "expected_page": 1,
-    "answerable": true
+    "answerable": true,
+    "category": "single_chunk"
+  },
+  {
+    "question": "İş bilgisayarları hangi hesaplarla kullanılmalıdır?",
+    "expected_answer": "Şirket tarafından verilen hesaplarla",
+    "expected_file": "remote_work_policy.md",
+    "expected_page": 1,
+    "answerable": true,
+    "category": "single_chunk"
+  },
+  {
+    "question": "Kişisel cihazlar üzerinden hangi veriler paylaşılmamalıdır?",
+    "expected_answer": "Hassas veriler",
+    "expected_file": "remote_work_policy.md",
+    "expected_page": 1,
+    "answerable": true,
+    "category": "single_chunk"
+  },
+  {
+    "question": "Şifrelerde en az kaç karakter bulunmalıdır?",
+    "expected_answer": "12 karakter",
+    "expected_file": "security_guidelines.md",
+    "expected_page": 1,
+    "answerable": true,
+    "category": "single_chunk"
+  },
+  {
+    "question": "Şifreler hangi karakter türlerini içermelidir?",
+    "expected_answer": "Büyük harf, küçük harf, rakam ve özel karakter",
+    "expected_file": "security_guidelines.md",
+    "expected_page": 1,
+    "answerable": true,
+    "category": "single_chunk"
+  },
+  {
+    "question": "Hangi güvenlik yöntemi şirket hesabı için zorunludur?",
+    "expected_answer": "İki faktörlü doğrulama",
+    "expected_file": "security_guidelines.md",
+    "expected_page": 1,
+    "answerable": true,
+    "category": "single_chunk"
+  },
+  {
+    "question": "İki faktörlü doğrulama hangi amaçla zorunludur?",
+    "expected_answer": "Hesabın güvenliğini artırmak",
+    "expected_file": "security_guidelines.md",
+    "expected_page": 1,
+    "answerable": true,
+    "category": "single_chunk"
+  },
+  {
+    "question": "Hassas verilere kimler erişebilir?",
+    "expected_answer": "Yalnızca yetkili personel",
+    "expected_file": "security_guidelines.md",
+    "expected_page": 1,
+    "answerable": true,
+    "category": "single_chunk"
+  },
+  {
+    "question": "Şirket içi belgeler hangi sınıflar ile etiketlenmelidir?",
+    "expected_answer": "Özel, Kurumsal veya Genel",
+    "expected_file": "security_guidelines.md",
+    "expected_page": 1,
+    "answerable": true,
+    "category": "single_chunk"
+  },
+  {
+    "question": "Yeni çalışan ilk gün neyi tamamlamalıdır?",
+    "expected_answer": "Şirket giriş prosedürlerini",
+    "expected_file": "onboarding_process.docx",
+    "expected_page": null,
+    "expected_paragraph": 2,
+    "answerable": true,
+    "category": "single_chunk"
+  },
+  {
+    "question": "Yeni çalışanın ilk tanışma toplantısı kimle planlanır?",
+    "expected_answer": "İnsan kaynakları ile",
+    "expected_file": "onboarding_process.docx",
+    "expected_page": null,
+    "expected_paragraph": 3,
+    "answerable": true,
+    "category": "single_chunk"
+  },
+  {
+    "question": "Yeni çalışan için bilgisayar ve erişim haklarını hangi ekip hazırlar?",
+    "expected_answer": "IT ekibi",
+    "expected_file": "onboarding_process.docx",
+    "expected_page": null,
+    "expected_paragraph": 4,
+    "answerable": true,
+    "category": "single_chunk"
+  },
+  {
+    "question": "Onboarding sonunda çalışanlara hangi konular anlatılır?",
+    "expected_answer": "Şirket politikaları ve güvenlik kuralları",
+    "expected_file": "onboarding_process.docx",
+    "expected_page": null,
+    "expected_paragraph": 5,
+    "answerable": true,
+    "category": "single_chunk"
+  },
+  {
+    "question": "Harcama talepleri ne zaman yöneticilere iletilmelidir?",
+    "expected_answer": "Ay sonundan önce",
+    "expected_file": "travel_expense_policy.pdf",
+    "expected_page": 1,
+    "answerable": true,
+    "category": "single_chunk"
+  },
+  {
+    "question": "Yol gideri politikasına göre talepler kime iletilmelidir?",
+    "expected_answer": "Yöneticilere",
+    "expected_file": "travel_expense_policy.pdf",
+    "expected_page": 1,
+    "answerable": true,
+    "category": "single_chunk"
+  },
+  {
+    "question": "Uzaktan çalışma onayı ve talep süresi birlikte nedir?",
+    "expected_answer": "Onay birim yöneticisinden alınır ve talep en az 3 gün önceden iletilir",
+    "expected_file": "remote_work_policy.md",
+    "expected_page": 1,
+    "answerable": true,
+    "category": "multi_fact"
+  },
+  {
+    "question": "Şifre kuralı ve iki faktörlü doğrulama hangi belgede anlatılır?",
+    "expected_answer": "Güvenlik Yönergeleri",
+    "expected_file": "security_guidelines.md",
+    "expected_page": 1,
+    "answerable": true,
+    "category": "multi_fact"
+  },
+  {
+    "question": "Who must approve remote work requests?",
+    "expected_answer": "The unit manager",
+    "expected_file": "remote_work_policy.md",
+    "expected_page": 1,
+    "answerable": true,
+    "category": "cross_language"
+  },
+  {
+    "question": "What is the minimum password length?",
+    "expected_answer": "12 characters",
+    "expected_file": "security_guidelines.md",
+    "expected_page": 1,
+    "answerable": true,
+    "category": "cross_language"
+  },
+  {
+    "question": "Uzaktan çalışma onayı insan kaynaklarından mı alınmalıdır?",
+    "expected_answer": "Hayır, onay birim yöneticisinden alınmalıdır",
+    "expected_file": "remote_work_policy.md",
+    "expected_page": 1,
+    "answerable": true,
+    "category": "misleading"
+  },
+  {
+    "question": "Uzaktan çalışma talebini aynı gün iletmek yeterli midir?",
+    "expected_answer": "Hayır, talep en az 3 gün önceden yöneticiye iletilmelidir",
+    "expected_file": "remote_work_policy.md",
+    "expected_page": 1,
+    "answerable": true,
+    "category": "misleading"
+  },
+  {
+    "question": "Şirket hesapları için iki faktörlü doğrulama isteğe bağlı mıdır?",
+    "expected_answer": "Hayır, iki faktörlü doğrulama zorunludur",
+    "expected_file": "security_guidelines.md",
+    "expected_page": 1,
+    "answerable": true,
+    "category": "misleading"
+  },
+  {
+    "question": "Şifrelerde 8 karakter yeterli midir?",
+    "expected_answer": "Hayır, şifrelerde en az 12 karakter bulunmalıdır",
+    "expected_file": "security_guidelines.md",
+    "expected_page": 1,
+    "answerable": true,
+    "category": "misleading"
+  },
+  {
+    "question": "Hassas verilere tüm çalışanlar erişebilir mi?",
+    "expected_answer": "Hayır, hassas verilere yalnızca yetkili personel erişebilir",
+    "expected_file": "security_guidelines.md",
+    "expected_page": 1,
+    "answerable": true,
+    "category": "misleading"
+  },
+  {
+    "question": "Yeni çalışanın bilgisayar ve erişim haklarını insan kaynakları mı hazırlar?",
+    "expected_answer": "Hayır, bilgisayar ve erişim hakları IT ekibi tarafından hazırlanır",
+    "expected_file": "onboarding_process.docx",
+    "expected_page": null,
+    "expected_paragraph": 4,
+    "answerable": true,
+    "category": "misleading"
+  },
+  {
+    "question": "Harcama talepleri ay sonundan sonra mı yöneticilere iletilmelidir?",
+    "expected_answer": "Hayır, harcama talepleri ay sonundan önce yöneticilere iletilmelidir",
+    "expected_file": "travel_expense_policy.pdf",
+    "expected_page": 1,
+    "answerable": true,
+    "category": "misleading"
+  },
+  {
+    "question": "Kişisel cihazlar üzerinden hassas veri paylaşımı serbest midir?",
+    "expected_answer": "Hayır, kişisel cihazlar üzerinden hassas veriler paylaşılmamalıdır",
+    "expected_file": "remote_work_policy.md",
+    "expected_page": 1,
+    "answerable": true,
+    "category": "misleading"
+  },
+  {
+    "question": "Çalışanlara öğle yemeği ücreti ne kadar ödenir?",
+    "expected_answer": "Cevap belgelerde bulunamaz",
+    "expected_file": null,
+    "expected_page": null,
+    "answerable": false,
+    "category": "unanswerable"
+  },
+  {
+    "question": "Şirketin yıllık izin süresi kaç gündür?",
+    "expected_answer": "Cevap belgelerde bulunamaz",
+    "expected_file": null,
+    "expected_page": null,
+    "answerable": false,
+    "category": "unanswerable"
   }
 ]
