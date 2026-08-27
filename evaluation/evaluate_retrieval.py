@@ -28,11 +28,13 @@ def load_questions(question_file=QUESTION_FILE):
         return json.load(file)
 
 
-def open_sample_documents(sample_document_dir=SAMPLE_DOCUMENT_DIR):
+def open_sample_documents(sample_document_dir=SAMPLE_DOCUMENT_DIR, document_names=None):
+    allowed_names = set(document_names) if document_names else None
     document_paths = sorted(
         path
         for path in sample_document_dir.iterdir()
         if path.suffix.lower() in {".pdf", ".docx", ".md"}
+        and (allowed_names is None or path.name in allowed_names)
     )
     return [open(path, "rb") for path in document_paths]
 
@@ -61,10 +63,15 @@ def calculate_recall_at_k(questions, search_fn, top_k=5):
 
         total += 1
         results = search_fn(item["question"], top_k=top_k)
-        expected_file = item["expected_file"]
+        expected_files = _expected_files(item)
+        expected_file = expected_files[0] if expected_files else None
         returned_files = [result.get("file_name") for result in results]
-        rank = _first_rank(returned_files, expected_file)
-        found = rank is not None
+        ranks = {
+            file_name: _first_rank(returned_files, file_name)
+            for file_name in expected_files
+        }
+        found = bool(ranks) and all(rank is not None for rank in ranks.values())
+        rank = max(ranks.values()) if found else None
 
         if found:
             correct += 1
@@ -85,6 +92,7 @@ def calculate_recall_at_k(questions, search_fn, top_k=5):
                 "answerable": True,
                 "expected_answer": item.get("expected_answer"),
                 "expected_file": expected_file,
+                "expected_files": expected_files,
                 "expected_page": item.get("expected_page"),
                 "expected_paragraph": item.get("expected_paragraph"),
                 "found": found,
@@ -120,13 +128,21 @@ def calculate_recall_at_k(questions, search_fn, top_k=5):
     }
 
 
-def run_evaluation(top_k=5, chroma_dir=EVALUATION_CHROMA_DIR, save_results=True):
+def run_evaluation(
+    top_k=5,
+    chroma_dir=EVALUATION_CHROMA_DIR,
+    save_results=True,
+    question_file=QUESTION_FILE,
+    document_names=None,
+):
     if chroma_dir.exists():
         shutil.rmtree(chroma_dir)
 
     started_at = time.perf_counter()
     rag = RagPipeline(chroma_dir=str(chroma_dir), collection_name="retrieval_eval")
-    sample_documents = open_sample_documents()
+    questions = load_questions(question_file)
+    document_names = document_names or _document_names_from_questions(questions)
+    sample_documents = open_sample_documents(document_names=document_names)
 
     try:
         rag.index_files(sample_documents)
@@ -134,7 +150,6 @@ def run_evaluation(top_k=5, chroma_dir=EVALUATION_CHROMA_DIR, save_results=True)
         for document in sample_documents:
             document.close()
 
-    questions = load_questions()
     report = calculate_recall_at_k(questions, rag.search, top_k=top_k)
     report["metadata"] = {
         "created_at": datetime.now(timezone.utc).isoformat(),
@@ -143,6 +158,8 @@ def run_evaluation(top_k=5, chroma_dir=EVALUATION_CHROMA_DIR, save_results=True)
         "answerable_count": report["total"],
         "unanswerable_count": len(questions) - report["total"],
         "sample_document_dir": str(SAMPLE_DOCUMENT_DIR),
+        "question_file": str(question_file),
+        "indexed_document_names": sorted(document_names) if document_names else None,
         "chroma_dir": str(chroma_dir),
         "collection_name": "retrieval_eval",
         "embedding_model_name": rag.embedding_model_name,
@@ -216,5 +233,34 @@ def _first_rank(returned_files, expected_file):
     return None
 
 
+def _expected_files(item):
+    if item.get("expected_files"):
+        return item["expected_files"]
+    if item.get("expected_file"):
+        return [item["expected_file"]]
+    return []
+
+
+def _document_names_from_questions(questions):
+    document_names = set()
+    for item in questions:
+        document_names.update(_expected_files(item))
+    return document_names
+
+
 if __name__ == "__main__":
-    print_report(run_evaluation(top_k=5))
+    question_file = Path(os.getenv("QUESTION_FILE", QUESTION_FILE))
+    document_names = os.getenv("EVALUATION_DOCUMENTS")
+    if document_names:
+        document_names = [
+            document_name.strip()
+            for document_name in document_names.split(",")
+            if document_name.strip()
+        ]
+    print_report(
+        run_evaluation(
+            top_k=int(os.getenv("TOP_K", "5")),
+            question_file=question_file,
+            document_names=document_names,
+        )
+    )

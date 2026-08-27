@@ -1,0 +1,987 @@
+{
+  "top_k": 5,
+  "total": 17,
+  "correct": 16,
+  "recall": 0.9411764705882353,
+  "by_category": {
+    "normal": {
+      "total": 8,
+      "correct": 8,
+      "recall": 1.0
+    },
+    "misleading": {
+      "total": 6,
+      "correct": 6,
+      "recall": 1.0
+    },
+    "multi_document": {
+      "total": 3,
+      "correct": 2,
+      "recall": 0.6666666666666666
+    }
+  },
+  "details": [
+    {
+      "question": "GROW with SAP hangi tür işletmeler için SAP S/4HANA Cloud'un hızlı ve sorunsuz entegrasyonunu sağlar?",
+      "category": "normal",
+      "answerable": true,
+      "expected_answer": "Henüz ERP sistemine sahip olmayan orta ölçekli işletmeler için sağlar.",
+      "expected_file": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+      "expected_files": [
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf"
+      ],
+      "expected_page": 2,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf"
+      ],
+      "top_results": [
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 10,
+          "paragraph_number": null,
+          "distance": 3.774610996246338
+        },
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 10,
+          "paragraph_number": null,
+          "distance": 4.747684001922607
+        },
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 5,
+          "paragraph_number": null,
+          "distance": 5.4717254638671875
+        },
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 2,
+          "paragraph_number": null,
+          "distance": 6.027679443359375
+        },
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 3,
+          "paragraph_number": null,
+          "distance": 8.601522445678711
+        }
+      ]
+    },
+    {
+      "question": "GROW with SAP'nin maliyet ve verimlilik açısından vaat ettiği temel fayda nedir?",
+      "category": "normal",
+      "answerable": true,
+      "expected_answer": "Maliyetleri düşürerek toplam sahip olma maliyetini azaltır ve verimliliği artırır.",
+      "expected_file": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+      "expected_files": [
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf"
+      ],
+      "expected_page": 3,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "SolutionBrief-ready2run-21032022-TR.pdf",
+        "SolutionBrief-ready2run-21032022-TR.pdf"
+      ],
+      "top_results": [
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 10,
+          "paragraph_number": null,
+          "distance": 8.416781425476074
+        },
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 7,
+          "paragraph_number": null,
+          "distance": 9.859702110290527
+        },
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 3,
+          "paragraph_number": null,
+          "distance": 9.335762023925781
+        },
+        {
+          "file_name": "SolutionBrief-ready2run-21032022-TR.pdf",
+          "page_number": 5,
+          "paragraph_number": null,
+          "distance": 11.822042465209961
+        },
+        {
+          "file_name": "SolutionBrief-ready2run-21032022-TR.pdf",
+          "page_number": 2,
+          "paragraph_number": null,
+          "distance": 12.383369445800781
+        }
+      ]
+    },
+    {
+      "question": "Joule hangi yapay zeka yetenekleriyle iş süreçlerini destekler?",
+      "category": "normal",
+      "answerable": true,
+      "expected_answer": "Doğal dil işleme ve makine öğrenimi yetenekleriyle destek sağlar; iş süreçlerini hızlandırır ve operasyonları optimize eder.",
+      "expected_file": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+      "expected_files": [
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf"
+      ],
+      "expected_page": 6,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf"
+      ],
+      "top_results": [
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 6,
+          "paragraph_number": null,
+          "distance": 10.4852933883667
+        },
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 5,
+          "paragraph_number": null,
+          "distance": 9.851279258728027
+        },
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 4,
+          "paragraph_number": null,
+          "distance": 12.315481185913086
+        },
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 8,
+          "paragraph_number": null,
+          "distance": 13.040504455566406
+        },
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 4,
+          "paragraph_number": null,
+          "distance": 12.844520568847656
+        }
+      ]
+    },
+    {
+      "question": "SAP Public Cloud dokümanına göre 2022 araştırmasında işletmelerin yaklaşık üçte biri ne planlıyor?",
+      "category": "normal",
+      "answerable": true,
+      "expected_answer": "Önümüzdeki iki yıl içinde bulutta çok sayıda hizmetten yararlanmayı planlıyor.",
+      "expected_file": "NTT DATA - SAP Public Cloud.pdf",
+      "expected_files": [
+        "NTT DATA - SAP Public Cloud.pdf"
+      ],
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "NTT DATA - SAP Public Cloud.pdf",
+        "NTT DATA - SAP Public Cloud.pdf",
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "NTT DATA - SAP Public Cloud.pdf",
+        "NTT DATA - SAP Public Cloud.pdf"
+      ],
+      "top_results": [
+        {
+          "file_name": "NTT DATA - SAP Public Cloud.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 6.4986090660095215
+        },
+        {
+          "file_name": "NTT DATA - SAP Public Cloud.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 8.554037094116211
+        },
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 11,
+          "paragraph_number": null,
+          "distance": 8.876379013061523
+        },
+        {
+          "file_name": "NTT DATA - SAP Public Cloud.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 8.803893089294434
+        },
+        {
+          "file_name": "NTT DATA - SAP Public Cloud.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 9.632892608642578
+        }
+      ]
+    },
+    {
+      "question": "NTT DATA Public Cloud hizmetinde yol haritası nasıl çıkarılır?",
+      "category": "normal",
+      "answerable": true,
+      "expected_answer": "Atölye ve analiz çalışmalarıyla mevcut aşama anlaşılır ve en doğru yol haritası birlikte çıkarılır.",
+      "expected_file": "NTT DATA - SAP Public Cloud.pdf",
+      "expected_files": [
+        "NTT DATA - SAP Public Cloud.pdf"
+      ],
+      "expected_page": 2,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "NTT DATA - SAP Public Cloud.pdf",
+        "NTT DATA - SAP Public Cloud.pdf",
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf"
+      ],
+      "top_results": [
+        {
+          "file_name": "NTT DATA - SAP Public Cloud.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 7.248846530914307
+        },
+        {
+          "file_name": "NTT DATA - SAP Public Cloud.pdf",
+          "page_number": 2,
+          "paragraph_number": null,
+          "distance": 9.771151542663574
+        },
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 11,
+          "paragraph_number": null,
+          "distance": 10.80756950378418
+        },
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 11.111685752868652
+        },
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 4,
+          "paragraph_number": null,
+          "distance": 11.291569709777832
+        }
+      ]
+    },
+    {
+      "question": "Ready2Run hangi SAP işlevselliğini sınırlı özelleştirmeyle kullanır?",
+      "category": "normal",
+      "answerable": true,
+      "expected_answer": "SAP SuccessFactors işlevselliğini kullanarak İK açısından kritik iş süreçleri sunar.",
+      "expected_file": "SolutionBrief-ready2run-21032022-TR.pdf",
+      "expected_files": [
+        "SolutionBrief-ready2run-21032022-TR.pdf"
+      ],
+      "expected_page": 3,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "SolutionBrief-ready2run-21032022-TR.pdf",
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf"
+      ],
+      "top_results": [
+        {
+          "file_name": "SolutionBrief-ready2run-21032022-TR.pdf",
+          "page_number": 3,
+          "paragraph_number": null,
+          "distance": 7.029404163360596
+        },
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 10,
+          "paragraph_number": null,
+          "distance": 10.312212944030762
+        },
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 6,
+          "paragraph_number": null,
+          "distance": 11.177565574645996
+        },
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 5,
+          "paragraph_number": null,
+          "distance": 11.629949569702148
+        },
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 10,
+          "paragraph_number": null,
+          "distance": 11.722383499145508
+        }
+      ]
+    },
+    {
+      "question": "Ready2Run çözümü yazılım bakım sözleşmesi gerektirir mi?",
+      "category": "normal",
+      "answerable": true,
+      "expected_answer": "Hayır, çözüm yazılım bakım sözleşmesi gerektirmez.",
+      "expected_file": "SolutionBrief-ready2run-21032022-TR.pdf",
+      "expected_files": [
+        "SolutionBrief-ready2run-21032022-TR.pdf"
+      ],
+      "expected_page": 6,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "SolutionBrief-ready2run-21032022-TR.pdf",
+        "SolutionBrief-ready2run-21032022-TR.pdf",
+        "SolutionBrief-ready2run-21032022-TR.pdf",
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+        "SolutionBrief-ready2run-21032022-TR.pdf"
+      ],
+      "top_results": [
+        {
+          "file_name": "SolutionBrief-ready2run-21032022-TR.pdf",
+          "page_number": 6,
+          "paragraph_number": null,
+          "distance": 9.19838809967041
+        },
+        {
+          "file_name": "SolutionBrief-ready2run-21032022-TR.pdf",
+          "page_number": 2,
+          "paragraph_number": null,
+          "distance": 10.116690635681152
+        },
+        {
+          "file_name": "SolutionBrief-ready2run-21032022-TR.pdf",
+          "page_number": 3,
+          "paragraph_number": null,
+          "distance": 10.864364624023438
+        },
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 6,
+          "paragraph_number": null,
+          "distance": 11.472371101379395
+        },
+        {
+          "file_name": "SolutionBrief-ready2run-21032022-TR.pdf",
+          "page_number": 3,
+          "paragraph_number": null,
+          "distance": 11.683353424072266
+        }
+      ]
+    },
+    {
+      "question": "Uygulama Yönetimi Hizmetleri hangi modelle yürütülür?",
+      "category": "normal",
+      "answerable": true,
+      "expected_answer": "Güvence altına al, yürüt, geliştir ve destekle modeliyle yürütülür.",
+      "expected_file": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+      "expected_files": [
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf"
+      ],
+      "expected_page": 6,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf"
+      ],
+      "top_results": [
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 7,
+          "paragraph_number": null,
+          "distance": 8.616182327270508
+        },
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 6,
+          "paragraph_number": null,
+          "distance": 9.824308395385742
+        },
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 3,
+          "paragraph_number": null,
+          "distance": 9.788281440734863
+        },
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 8,
+          "paragraph_number": null,
+          "distance": 9.585783004760742
+        },
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 2,
+          "paragraph_number": null,
+          "distance": 10.440240859985352
+        }
+      ]
+    },
+    {
+      "question": "GROW with SAP yalnızca yerel kurulumlu bir ERP çözümü müdür?",
+      "category": "misleading",
+      "answerable": true,
+      "expected_answer": "Hayır. GROW with SAP, SAP S/4HANA Cloud Public Edition ile bulut ERP yaklaşımı sunar.",
+      "expected_file": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+      "expected_files": [
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf"
+      ],
+      "expected_page": 2,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf"
+      ],
+      "top_results": [
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 10,
+          "paragraph_number": null,
+          "distance": 8.500274658203125
+        },
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 7,
+          "paragraph_number": null,
+          "distance": 9.836868286132812
+        },
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 6,
+          "paragraph_number": null,
+          "distance": 8.775101661682129
+        },
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 10,
+          "paragraph_number": null,
+          "distance": 10.100602149963379
+        },
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 3,
+          "paragraph_number": null,
+          "distance": 9.965179443359375
+        }
+      ]
+    },
+    {
+      "question": "Joule sadece manuel rapor yazmak için kullanılan klasik bir raporlama aracı mıdır?",
+      "category": "misleading",
+      "answerable": true,
+      "expected_answer": "Hayır. Joule, doğal dil işleme ve makine öğrenimi yeteneklerine sahip yapay zeka destekli bir copilottur.",
+      "expected_file": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+      "expected_files": [
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf"
+      ],
+      "expected_page": 6,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "SolutionBrief-ready2run-21032022-TR.pdf",
+        "SolutionBrief-ready2run-21032022-TR.pdf",
+        "SolutionBrief-ready2run-21032022-TR.pdf",
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf"
+      ],
+      "top_results": [
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 6,
+          "paragraph_number": null,
+          "distance": 14.432010650634766
+        },
+        {
+          "file_name": "SolutionBrief-ready2run-21032022-TR.pdf",
+          "page_number": 2,
+          "paragraph_number": null,
+          "distance": 14.603015899658203
+        },
+        {
+          "file_name": "SolutionBrief-ready2run-21032022-TR.pdf",
+          "page_number": 3,
+          "paragraph_number": null,
+          "distance": 14.635327339172363
+        },
+        {
+          "file_name": "SolutionBrief-ready2run-21032022-TR.pdf",
+          "page_number": 2,
+          "paragraph_number": null,
+          "distance": 14.709612846374512
+        },
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 4,
+          "paragraph_number": null,
+          "distance": 14.881967544555664
+        }
+      ]
+    },
+    {
+      "question": "Bulut stratejisi yalnızca uygun bir hizmet sağlayıcısı seçmekten mi ibarettir?",
+      "category": "misleading",
+      "answerable": true,
+      "expected_answer": "Hayır. Platform stratejisinde çok sayıda olası kombinasyon ve kriterin dikkate alınması gerekir.",
+      "expected_file": "NTT DATA - SAP Public Cloud.pdf",
+      "expected_files": [
+        "NTT DATA - SAP Public Cloud.pdf"
+      ],
+      "expected_page": 1,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "NTT DATA - SAP Public Cloud.pdf",
+        "NTT DATA - SAP Public Cloud.pdf",
+        "NTT DATA - SAP Public Cloud.pdf",
+        "NTT DATA - SAP Public Cloud.pdf",
+        "NTT DATA - SAP Public Cloud.pdf"
+      ],
+      "top_results": [
+        {
+          "file_name": "NTT DATA - SAP Public Cloud.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 7.085954666137695
+        },
+        {
+          "file_name": "NTT DATA - SAP Public Cloud.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 7.856882095336914
+        },
+        {
+          "file_name": "NTT DATA - SAP Public Cloud.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 7.905252456665039
+        },
+        {
+          "file_name": "NTT DATA - SAP Public Cloud.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 8.595102310180664
+        },
+        {
+          "file_name": "NTT DATA - SAP Public Cloud.pdf",
+          "page_number": 2,
+          "paragraph_number": null,
+          "distance": 7.912934303283691
+        }
+      ]
+    },
+    {
+      "question": "NTT DATA, SAP ortamlarının uygulamaya alınmasında yalnızca AWS deneyimine mi dayanır?",
+      "category": "misleading",
+      "answerable": true,
+      "expected_answer": "Hayır. SAP alanındaki deneyiminin yanı sıra AWS ve MS Azure iş ortaklığından yararlanır.",
+      "expected_file": "NTT DATA - SAP Public Cloud.pdf",
+      "expected_files": [
+        "NTT DATA - SAP Public Cloud.pdf"
+      ],
+      "expected_page": 2,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 2,
+      "returned_files": [
+        "SolutionBrief-ready2run-21032022-TR.pdf",
+        "NTT DATA - SAP Public Cloud.pdf",
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+        "NTT DATA - SAP Public Cloud.pdf"
+      ],
+      "top_results": [
+        {
+          "file_name": "SolutionBrief-ready2run-21032022-TR.pdf",
+          "page_number": 7,
+          "paragraph_number": null,
+          "distance": 8.684870719909668
+        },
+        {
+          "file_name": "NTT DATA - SAP Public Cloud.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 9.03410816192627
+        },
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 2,
+          "paragraph_number": null,
+          "distance": 9.18179702758789
+        },
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 3,
+          "paragraph_number": null,
+          "distance": 10.30013370513916
+        },
+        {
+          "file_name": "NTT DATA - SAP Public Cloud.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 11.082347869873047
+        }
+      ]
+    },
+    {
+      "question": "Ready2Run değer yaratma süresini yıllara yaymayı mı hedefler?",
+      "category": "misleading",
+      "answerable": true,
+      "expected_answer": "Hayır. Ready2Run değer yaratma süresini kısaltmayı ve birkaç hafta içinde fayda sağlamayı hedefler.",
+      "expected_file": "SolutionBrief-ready2run-21032022-TR.pdf",
+      "expected_files": [
+        "SolutionBrief-ready2run-21032022-TR.pdf"
+      ],
+      "expected_page": 2,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "SolutionBrief-ready2run-21032022-TR.pdf",
+        "SolutionBrief-ready2run-21032022-TR.pdf",
+        "SolutionBrief-ready2run-21032022-TR.pdf",
+        "SolutionBrief-ready2run-21032022-TR.pdf",
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf"
+      ],
+      "top_results": [
+        {
+          "file_name": "SolutionBrief-ready2run-21032022-TR.pdf",
+          "page_number": 2,
+          "paragraph_number": null,
+          "distance": 9.567538261413574
+        },
+        {
+          "file_name": "SolutionBrief-ready2run-21032022-TR.pdf",
+          "page_number": 2,
+          "paragraph_number": null,
+          "distance": 10.16562271118164
+        },
+        {
+          "file_name": "SolutionBrief-ready2run-21032022-TR.pdf",
+          "page_number": 2,
+          "paragraph_number": null,
+          "distance": 11.158061981201172
+        },
+        {
+          "file_name": "SolutionBrief-ready2run-21032022-TR.pdf",
+          "page_number": 3,
+          "paragraph_number": null,
+          "distance": 11.5299711227417
+        },
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 6,
+          "paragraph_number": null,
+          "distance": 11.781942367553711
+        }
+      ]
+    },
+    {
+      "question": "AMS hizmetleri yalnızca SAP uygulamalarını mı kapsar?",
+      "category": "misleading",
+      "answerable": true,
+      "expected_answer": "Hayır. SAP dışı uygulamalar ve kurum içi uygulamalar dahil olmak üzere uçtan uca SAP çözümlerini yönetmeye destek olur.",
+      "expected_file": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+      "expected_files": [
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf"
+      ],
+      "expected_page": 6,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 1,
+      "returned_files": [
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "NTT DATA - SAP Public Cloud.pdf"
+      ],
+      "top_results": [
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 3,
+          "paragraph_number": null,
+          "distance": 11.249391555786133
+        },
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 4,
+          "paragraph_number": null,
+          "distance": 11.700565338134766
+        },
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 2,
+          "paragraph_number": null,
+          "distance": 12.151247024536133
+        },
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 10,
+          "paragraph_number": null,
+          "distance": 13.769367218017578
+        },
+        {
+          "file_name": "NTT DATA - SAP Public Cloud.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 13.814668655395508
+        }
+      ]
+    },
+    {
+      "question": "GROW with SAP ve SAP Public Cloud dokümanları bulut dönüşümünü hangi iki farklı açıdan ele alıyor?",
+      "category": "multi_document",
+      "answerable": true,
+      "expected_answer": "GROW with SAP, SAP S/4HANA Cloud Public Edition ve önceden yapılandırılmış süreçlerle hızlı devreye almayı anlatır; SAP Public Cloud dokümanı ise atölye, analiz ve yol haritası çıkarma yaklaşımını anlatır.",
+      "expected_file": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+      "expected_files": [
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "NTT DATA - SAP Public Cloud.pdf"
+      ],
+      "expected_page": null,
+      "expected_paragraph": null,
+      "found": false,
+      "rank": null,
+      "returned_files": [
+        "NTT DATA - SAP Public Cloud.pdf",
+        "NTT DATA - SAP Public Cloud.pdf",
+        "NTT DATA - SAP Public Cloud.pdf",
+        "NTT DATA - SAP Public Cloud.pdf",
+        "NTT DATA - SAP Public Cloud.pdf"
+      ],
+      "top_results": [
+        {
+          "file_name": "NTT DATA - SAP Public Cloud.pdf",
+          "page_number": 2,
+          "paragraph_number": null,
+          "distance": 8.470617294311523
+        },
+        {
+          "file_name": "NTT DATA - SAP Public Cloud.pdf",
+          "page_number": 2,
+          "paragraph_number": null,
+          "distance": 8.950210571289062
+        },
+        {
+          "file_name": "NTT DATA - SAP Public Cloud.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 10.11921501159668
+        },
+        {
+          "file_name": "NTT DATA - SAP Public Cloud.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 10.247185707092285
+        },
+        {
+          "file_name": "NTT DATA - SAP Public Cloud.pdf",
+          "page_number": 2,
+          "paragraph_number": null,
+          "distance": 10.22086238861084
+        }
+      ]
+    },
+    {
+      "question": "Ready2Run ve AMS dokümanları NTT DATA'nın destek kapsamını nasıl farklı konumlandırıyor?",
+      "category": "multi_document",
+      "answerable": true,
+      "expected_answer": "Ready2Run, SAP SuccessFactors ile İK süreçleri için önceden yapılandırılmış hızlı çözümlere odaklanır; AMS ise SAP ve SAP dışı uygulamaların yönetimi, bakımı ve desteklenmesini kapsar.",
+      "expected_file": "SolutionBrief-ready2run-21032022-TR.pdf",
+      "expected_files": [
+        "SolutionBrief-ready2run-21032022-TR.pdf",
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf"
+      ],
+      "expected_page": null,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 2,
+      "returned_files": [
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+        "SolutionBrief-ready2run-21032022-TR.pdf",
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf"
+      ],
+      "top_results": [
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 7.873322486877441
+        },
+        {
+          "file_name": "SolutionBrief-ready2run-21032022-TR.pdf",
+          "page_number": 2,
+          "paragraph_number": null,
+          "distance": 9.914871215820312
+        },
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 8,
+          "paragraph_number": null,
+          "distance": 10.565093040466309
+        },
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 3,
+          "paragraph_number": null,
+          "distance": 10.624595642089844
+        },
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 8,
+          "paragraph_number": null,
+          "distance": 10.835780143737793
+        }
+      ]
+    },
+    {
+      "question": "GROW with SAP ve AMS dokümanlarında NTT DATA'nın stratejik partner rolü hangi ortak temayla anlatılıyor?",
+      "category": "multi_document",
+      "answerable": true,
+      "expected_answer": "İki doküman da NTT DATA'nın dijital dönüşüm, operasyonel destek, yönetilen hizmetler ve lokal/global uzmanlıkla kurumlara eşlik ettiğini anlatır.",
+      "expected_file": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+      "expected_files": [
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf"
+      ],
+      "expected_page": null,
+      "expected_paragraph": null,
+      "found": true,
+      "rank": 4,
+      "returned_files": [
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+        "NTT DATA - SAP Public Cloud.pdf",
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+        "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+        "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf"
+      ],
+      "top_results": [
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 2,
+          "paragraph_number": null,
+          "distance": 7.631743431091309
+        },
+        {
+          "file_name": "NTT DATA - SAP Public Cloud.pdf",
+          "page_number": 1,
+          "paragraph_number": null,
+          "distance": 7.294123649597168
+        },
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 3,
+          "paragraph_number": null,
+          "distance": 8.089131355285645
+        },
+        {
+          "file_name": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+          "page_number": 11,
+          "paragraph_number": null,
+          "distance": 8.738117218017578
+        },
+        {
+          "file_name": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+          "page_number": 3,
+          "paragraph_number": null,
+          "distance": 8.904349327087402
+        }
+      ]
+    },
+    {
+      "question": "GROW with SAP dokümanında lisans ücretinin tam TL fiyatı nedir?",
+      "category": "unanswerable",
+      "answerable": false,
+      "expected_file": null,
+      "expected_answer": "Cevap belgelerde bulunamaz.",
+      "found": null,
+      "rank": null,
+      "returned_files": []
+    },
+    {
+      "question": "Ready2Run dokümanında adı verilen belirli müşteri referansı hangisidir?",
+      "category": "unanswerable",
+      "answerable": false,
+      "expected_file": null,
+      "expected_answer": "Cevap belgelerde bulunamaz.",
+      "found": null,
+      "rank": null,
+      "returned_files": []
+    },
+    {
+      "question": "AMS hizmetleri için garanti edilen ticket çözüm süresi kaç dakikadır?",
+      "category": "unanswerable",
+      "answerable": false,
+      "expected_file": null,
+      "expected_answer": "Cevap belgelerde bulunamaz.",
+      "found": null,
+      "rank": null,
+      "returned_files": []
+    }
+  ],
+  "metadata": {
+    "created_at": "2026-08-27T09:19:44.411801+00:00",
+    "duration_seconds": 6.942,
+    "question_count": 20,
+    "answerable_count": 17,
+    "unanswerable_count": 3,
+    "sample_document_dir": "C:\\NTT_Intern\\RAG-based-AI-Assistant\\data\\sample_documents",
+    "question_file": "evaluation\\ntt_sample_questions.json",
+    "indexed_document_names": [
+      "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+      "NTT DATA - SAP Public Cloud.pdf",
+      "SolutionBrief-ready2run-21032022-TR.pdf",
+      "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf"
+    ],
+    "chroma_dir": "C:\\NTT_Intern\\RAG-based-AI-Assistant\\.tmp\\retrieval_eval_chroma",
+    "collection_name": "retrieval_eval",
+    "embedding_model_name": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "llm_provider": "ollama",
+    "ollama_model": "qwen3.5:9b",
+    "openrouter_model": "google/gemma-4-26b-a4b-it:free",
+    "environment": {
+      "CHROMA_DIR": "chroma_db",
+      "EMBEDDING_MODEL_NAME": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+      "LLM_PROVIDER": "ollama",
+      "OLLAMA_MODEL": "qwen3.5:9b",
+      "OPENROUTER_MODEL": "google/gemma-4-26b-a4b-it:free"
+    }
+  }
+}

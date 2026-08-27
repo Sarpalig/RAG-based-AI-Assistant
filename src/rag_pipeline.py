@@ -26,6 +26,8 @@ class RagPipeline:
         chroma_dir=None,
         collection_name="rag_documents",
         embedding_model_name=None,
+        chunk_size=300,
+        chunk_overlap=30,
     ):
         load_dotenv()
 
@@ -44,6 +46,8 @@ class RagPipeline:
             "OPENROUTER_FALLBACK_MODEL",
             "openrouter/free",
         )
+        self.chunk_size = chunk_size
+        self.chunk_overlap = chunk_overlap
 
         self.client = create_chroma_client(self.chroma_dir)
         self.collection = self.client.get_or_create_collection(
@@ -68,7 +72,11 @@ class RagPipeline:
         for document in documents:
             document["document_hash"] = document_hash
 
-        chunks = split_text(documents)
+        chunks = split_text(
+            documents,
+            chunk_size=self.chunk_size,
+            chunk_overlap=self.chunk_overlap,
+        )
         if not chunks:
             return {
                 "file_name": file_name,
@@ -105,8 +113,11 @@ class RagPipeline:
 
     def search(self, question, top_k=5):
         query_embedding = self.embedding_model.embed_query(question)
-        results = similarity_search(self.collection, query_embedding, top_k)
-        return self.format_search_results(results)
+        candidate_count = self._search_candidate_count(top_k)
+        results = similarity_search(self.collection, query_embedding, candidate_count)
+        formatted_results = self.format_search_results(results)
+        reranked_results = self.rerank_search_results(question, formatted_results)
+        return self.diversify_search_results(reranked_results, top_k)
 
     @staticmethod
     def format_search_results(results):
@@ -151,6 +162,7 @@ Rules:
 8. Keep the answer concise but complete.
 9. When source information is available, cite the relevant source using the source identifiers provided in the context.
 10. Never fabricate a source or citation.
+11. Use the exact citation format [Kaynak 1], [Kaynak 2], etc. Do not write citations without square brackets.
 
 The goal is to provide accurate, grounded, and traceable answers based strictly on the retrieved documents."""
         source_blocks = []
@@ -182,8 +194,11 @@ Kaynaklar:
         prompt = self.build_rag_prompt(question, search_results)
 
         answer = self._query_llm(prompt)
-        citations = self.build_citations(search_results)
-        answer = self.filter_invalid_citations(answer, len(citations))
+        all_citations = self.build_citations(search_results)
+        answer = self.normalize_citation_format(answer)
+        answer = self.filter_invalid_citations(answer, len(all_citations))
+        used_source_numbers = self.extract_citation_numbers(answer, len(all_citations))
+        citations = self.select_used_citations(all_citations, used_source_numbers)
         return answer, citations
 
     def _query_llm(self, prompt):
@@ -220,14 +235,172 @@ Kaynaklar:
         return citations
 
     @staticmethod
+    def normalize_citation_format(answer):
+        return re.sub(
+            r"(?<!\[)\bKaynak\s+(\d+)\b(?!\])",
+            r"[Kaynak \1]",
+            answer,
+            flags=re.IGNORECASE,
+        )
+
+    @staticmethod
     def filter_invalid_citations(answer, source_count):
         def replace_invalid(match):
             source_number = int(match.group(1))
             if 1 <= source_number <= source_count:
-                return match.group(0)
+                return f"[Kaynak {source_number}]"
             return ""
 
-        return re.sub(r"\[Kaynak\s+(\d+)\]", replace_invalid, answer)
+        return re.sub(
+            r"\[Kaynak\s+(\d+)\]",
+            replace_invalid,
+            answer,
+            flags=re.IGNORECASE,
+        )
+
+    @staticmethod
+    def extract_citation_numbers(answer, source_count):
+        source_numbers = []
+        seen = set()
+
+        for match in re.finditer(r"\[Kaynak\s+(\d+)\]", answer, flags=re.IGNORECASE):
+            source_number = int(match.group(1))
+            if not 1 <= source_number <= source_count:
+                continue
+            if source_number in seen:
+                continue
+            seen.add(source_number)
+            source_numbers.append(source_number)
+
+        return source_numbers
+
+    @staticmethod
+    def select_used_citations(citations, source_numbers):
+        return [
+            citations[source_number - 1]
+            for source_number in source_numbers
+            if 1 <= source_number <= len(citations)
+        ]
+
+    @staticmethod
+    def diversify_search_results(results, top_k):
+        selected_results = []
+        selected_chunk_ids = set()
+        seen_files = set()
+
+        for result in results:
+            file_name = result.get("file_name")
+            if file_name in seen_files:
+                continue
+            selected_results.append(result)
+            selected_chunk_ids.add(result.get("chunk_id"))
+            seen_files.add(file_name)
+            if len(selected_results) == top_k:
+                return selected_results
+
+        for result in results:
+            chunk_id = result.get("chunk_id")
+            if chunk_id in selected_chunk_ids:
+                continue
+            selected_results.append(result)
+            selected_chunk_ids.add(chunk_id)
+            if len(selected_results) == top_k:
+                break
+
+        return selected_results
+
+    def _search_candidate_count(self, top_k):
+        try:
+            collection_count = self.collection.count()
+        except (AttributeError, TypeError):
+            return top_k
+
+        if collection_count <= 0:
+            return top_k
+
+        return min(collection_count, max(top_k, top_k * 4, 12))
+
+    @classmethod
+    def rerank_search_results(cls, question, results):
+        question_tokens = cls._meaningful_tokens(question)
+        if not question_tokens:
+            return results
+
+        scored_results = []
+        for semantic_rank, result in enumerate(results):
+            lexical_score = cls._lexical_score(question_tokens, result.get("text", ""))
+            combined_score = semantic_rank - (lexical_score * 5)
+            scored_results.append((combined_score, semantic_rank, result))
+
+        return [
+            result
+            for _, _, result in sorted(scored_results, key=lambda item: (item[0], item[1]))
+        ]
+
+    @classmethod
+    def _lexical_score(cls, question_tokens, text):
+        text_tokens = cls._meaningful_tokens(text)
+        if not text_tokens:
+            return 0
+
+        unique_question_tokens = set(question_tokens)
+        unique_text_tokens = set(text_tokens)
+        token_overlap = len(unique_question_tokens & unique_text_tokens) / len(
+            unique_question_tokens
+        )
+
+        normalized_text = cls._normalize_for_matching(text)
+        question_bigrams = list(zip(question_tokens, question_tokens[1:]))
+        if not question_bigrams:
+            return token_overlap
+
+        phrase_hits = 0
+        for first_token, second_token in question_bigrams:
+            if f"{first_token} {second_token}" in normalized_text:
+                phrase_hits += 1
+
+        phrase_overlap = phrase_hits / len(question_bigrams)
+        return token_overlap + phrase_overlap
+
+    @staticmethod
+    def _meaningful_tokens(text):
+        stopwords = {
+            "ama",
+            "bir",
+            "bu",
+            "daha",
+            "da",
+            "de",
+            "gibi",
+            "hangi",
+            "ile",
+            "için",
+            "mı",
+            "mi",
+            "mu",
+            "mü",
+            "nasıl",
+            "ne",
+            "nedir",
+            "ve",
+            "veya",
+            "and",
+            "are",
+            "the",
+            "or",
+            "what",
+            "which",
+            "who",
+        }
+        return [
+            token
+            for token in re.findall(r"[\wçğıöşüÇĞİÖŞÜ]+", text.casefold())
+            if len(token) > 2 and token not in stopwords
+        ]
+
+    @classmethod
+    def _normalize_for_matching(cls, text):
+        return " ".join(cls._meaningful_tokens(text))
 
     @staticmethod
     def _read_file_content(file):

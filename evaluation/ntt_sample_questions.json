@@ -1,0 +1,168 @@
+[
+  {
+    "question": "GROW with SAP hangi tür işletmeler için SAP S/4HANA Cloud'un hızlı ve sorunsuz entegrasyonunu sağlar?",
+    "expected_answer": "Henüz ERP sistemine sahip olmayan orta ölçekli işletmeler için sağlar.",
+    "expected_file": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+    "expected_page": 2,
+    "answerable": true,
+    "category": "normal"
+  },
+  {
+    "question": "GROW with SAP'nin maliyet ve verimlilik açısından vaat ettiği temel fayda nedir?",
+    "expected_answer": "Maliyetleri düşürerek toplam sahip olma maliyetini azaltır ve verimliliği artırır.",
+    "expected_file": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+    "expected_page": 3,
+    "answerable": true,
+    "category": "normal"
+  },
+  {
+    "question": "Joule hangi yapay zeka yetenekleriyle iş süreçlerini destekler?",
+    "expected_answer": "Doğal dil işleme ve makine öğrenimi yetenekleriyle destek sağlar; iş süreçlerini hızlandırır ve operasyonları optimize eder.",
+    "expected_file": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+    "expected_page": 6,
+    "answerable": true,
+    "category": "normal"
+  },
+  {
+    "question": "SAP Public Cloud dokümanına göre 2022 araştırmasında işletmelerin yaklaşık üçte biri ne planlıyor?",
+    "expected_answer": "Önümüzdeki iki yıl içinde bulutta çok sayıda hizmetten yararlanmayı planlıyor.",
+    "expected_file": "NTT DATA - SAP Public Cloud.pdf",
+    "expected_page": 1,
+    "answerable": true,
+    "category": "normal"
+  },
+  {
+    "question": "NTT DATA Public Cloud hizmetinde yol haritası nasıl çıkarılır?",
+    "expected_answer": "Atölye ve analiz çalışmalarıyla mevcut aşama anlaşılır ve en doğru yol haritası birlikte çıkarılır.",
+    "expected_file": "NTT DATA - SAP Public Cloud.pdf",
+    "expected_page": 2,
+    "answerable": true,
+    "category": "normal"
+  },
+  {
+    "question": "Ready2Run hangi SAP işlevselliğini sınırlı özelleştirmeyle kullanır?",
+    "expected_answer": "SAP SuccessFactors işlevselliğini kullanarak İK açısından kritik iş süreçleri sunar.",
+    "expected_file": "SolutionBrief-ready2run-21032022-TR.pdf",
+    "expected_page": 3,
+    "answerable": true,
+    "category": "normal"
+  },
+  {
+    "question": "Ready2Run çözümü yazılım bakım sözleşmesi gerektirir mi?",
+    "expected_answer": "Hayır, çözüm yazılım bakım sözleşmesi gerektirmez.",
+    "expected_file": "SolutionBrief-ready2run-21032022-TR.pdf",
+    "expected_page": 6,
+    "answerable": true,
+    "category": "normal"
+  },
+  {
+    "question": "Uygulama Yönetimi Hizmetleri hangi modelle yürütülür?",
+    "expected_answer": "Güvence altına al, yürüt, geliştir ve destekle modeliyle yürütülür.",
+    "expected_file": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+    "expected_page": 6,
+    "answerable": true,
+    "category": "normal"
+  },
+  {
+    "question": "GROW with SAP yalnızca yerel kurulumlu bir ERP çözümü müdür?",
+    "expected_answer": "Hayır. GROW with SAP, SAP S/4HANA Cloud Public Edition ile bulut ERP yaklaşımı sunar.",
+    "expected_file": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+    "expected_page": 2,
+    "answerable": true,
+    "category": "misleading"
+  },
+  {
+    "question": "Joule sadece manuel rapor yazmak için kullanılan klasik bir raporlama aracı mıdır?",
+    "expected_answer": "Hayır. Joule, doğal dil işleme ve makine öğrenimi yeteneklerine sahip yapay zeka destekli bir copilottur.",
+    "expected_file": "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+    "expected_page": 6,
+    "answerable": true,
+    "category": "misleading"
+  },
+  {
+    "question": "Bulut stratejisi yalnızca uygun bir hizmet sağlayıcısı seçmekten mi ibarettir?",
+    "expected_answer": "Hayır. Platform stratejisinde çok sayıda olası kombinasyon ve kriterin dikkate alınması gerekir.",
+    "expected_file": "NTT DATA - SAP Public Cloud.pdf",
+    "expected_page": 1,
+    "answerable": true,
+    "category": "misleading"
+  },
+  {
+    "question": "NTT DATA, SAP ortamlarının uygulamaya alınmasında yalnızca AWS deneyimine mi dayanır?",
+    "expected_answer": "Hayır. SAP alanındaki deneyiminin yanı sıra AWS ve MS Azure iş ortaklığından yararlanır.",
+    "expected_file": "NTT DATA - SAP Public Cloud.pdf",
+    "expected_page": 2,
+    "answerable": true,
+    "category": "misleading"
+  },
+  {
+    "question": "Ready2Run değer yaratma süresini yıllara yaymayı mı hedefler?",
+    "expected_answer": "Hayır. Ready2Run değer yaratma süresini kısaltmayı ve birkaç hafta içinde fayda sağlamayı hedefler.",
+    "expected_file": "SolutionBrief-ready2run-21032022-TR.pdf",
+    "expected_page": 2,
+    "answerable": true,
+    "category": "misleading"
+  },
+  {
+    "question": "AMS hizmetleri yalnızca SAP uygulamalarını mı kapsar?",
+    "expected_answer": "Hayır. SAP dışı uygulamalar ve kurum içi uygulamalar dahil olmak üzere uçtan uca SAP çözümlerini yönetmeye destek olur.",
+    "expected_file": "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf",
+    "expected_page": 6,
+    "answerable": true,
+    "category": "misleading"
+  },
+  {
+    "question": "GROW with SAP ve SAP Public Cloud dokümanları bulut dönüşümünü hangi iki farklı açıdan ele alıyor?",
+    "expected_answer": "GROW with SAP, SAP S/4HANA Cloud Public Edition ve önceden yapılandırılmış süreçlerle hızlı devreye almayı anlatır; SAP Public Cloud dokümanı ise atölye, analiz ve yol haritası çıkarma yaklaşımını anlatır.",
+    "expected_files": [
+      "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+      "NTT DATA - SAP Public Cloud.pdf"
+    ],
+    "answerable": true,
+    "category": "multi_document"
+  },
+  {
+    "question": "Ready2Run ve AMS dokümanları NTT DATA'nın destek kapsamını nasıl farklı konumlandırıyor?",
+    "expected_answer": "Ready2Run, SAP SuccessFactors ile İK süreçleri için önceden yapılandırılmış hızlı çözümlere odaklanır; AMS ise SAP ve SAP dışı uygulamaların yönetimi, bakımı ve desteklenmesini kapsar.",
+    "expected_files": [
+      "SolutionBrief-ready2run-21032022-TR.pdf",
+      "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf"
+    ],
+    "answerable": true,
+    "category": "multi_document"
+  },
+  {
+    "question": "GROW with SAP ve AMS dokümanlarında NTT DATA'nın stratejik partner rolü hangi ortak temayla anlatılıyor?",
+    "expected_answer": "İki doküman da NTT DATA'nın dijital dönüşüm, operasyonel destek, yönetilen hizmetler ve lokal/global uzmanlıkla kurumlara eşlik ettiğini anlatır.",
+    "expected_files": [
+      "NDBS-Solutionbrief-GROW-with-SAP-12032025-TR-TR.pdf",
+      "whitepaper-uygulama-yonetimi-hizmetleri-ams-tr.pdf"
+    ],
+    "answerable": true,
+    "category": "multi_document"
+  },
+  {
+    "question": "GROW with SAP dokümanında lisans ücretinin tam TL fiyatı nedir?",
+    "expected_answer": "Cevap belgelerde bulunamaz.",
+    "expected_file": null,
+    "expected_page": null,
+    "answerable": false,
+    "category": "unanswerable"
+  },
+  {
+    "question": "Ready2Run dokümanında adı verilen belirli müşteri referansı hangisidir?",
+    "expected_answer": "Cevap belgelerde bulunamaz.",
+    "expected_file": null,
+    "expected_page": null,
+    "answerable": false,
+    "category": "unanswerable"
+  },
+  {
+    "question": "AMS hizmetleri için garanti edilen ticket çözüm süresi kaç dakikadır?",
+    "expected_answer": "Cevap belgelerde bulunamaz.",
+    "expected_file": null,
+    "expected_page": null,
+    "answerable": false,
+    "category": "unanswerable"
+  }
+]

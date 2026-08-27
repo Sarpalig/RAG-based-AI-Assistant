@@ -155,6 +155,40 @@ Kişisel cihazlar üzerinden hassas veriler paylaşılmamalıdır.
     assert all(chunk["file_name"] == "remote_work_policy.md" for chunk in chunks)
 
 
+def test_split_text_keeps_markdown_section_context_together():
+    markdown_content = """# GÃ¼venlik YÃ¶nergeleri
+
+## Åžifre PolitikasÄ±
+Åžifrelerde en az 12 karakter bulunmalÄ±dÄ±r.
+
+## Ä°ki FaktÃ¶rlÃ¼ DoÄŸrulama
+TÃ¼m Ã§alÄ±ÅŸanlar, ÅŸirket hesabÄ± iÃ§in iki faktÃ¶rlÃ¼ doÄŸrulama kullanmalÄ±dÄ±r.
+Bu sistem, hesabÄ±n gÃ¼venliÄŸini artÄ±rmak iÃ§in zorunludur.
+"""
+
+    chunks = split_text(
+        [
+            {
+                "text": markdown_content,
+                "file_name": "security_guidelines.md",
+                "document_type": "md",
+            }
+        ],
+        chunk_size=300,
+        chunk_overlap=30,
+    )
+
+    matching_chunks = [
+        chunk["text"]
+        for chunk in chunks
+        if "Ä°ki FaktÃ¶rlÃ¼ DoÄŸrulama" in chunk["text"]
+    ]
+
+    assert matching_chunks
+    assert "zorunludur" in matching_chunks[0]
+    assert "GÃ¼venlik YÃ¶nergeleri" in matching_chunks[0]
+
+
 def test_split_text_multiple_documents():
     """Test chunking multiple documents together."""
     documents = [

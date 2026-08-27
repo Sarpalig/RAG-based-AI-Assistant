@@ -1,0 +1,721 @@
+{
+  "metadata": {
+    "created_at": "2026-08-27T08:05:01.925757+00:00",
+    "duration_seconds": 485.919,
+    "top_k": 5,
+    "question_count": 32,
+    "sample_document_dir": "C:\\NTT_Intern\\RAG-based-AI-Assistant\\data\\sample_documents",
+    "chroma_dir": "C:\\NTT_Intern\\RAG-based-AI-Assistant\\.tmp\\rag_answer_eval_chroma",
+    "collection_name": "rag_answer_eval",
+    "embedding_model_name": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "llm_provider": "ollama",
+    "ollama_model": "qwen3.5:9b",
+    "openrouter_model": "google/gemma-4-26b-a4b-it:free",
+    "index_results": [
+      {
+        "file_name": "onboarding_process.docx",
+        "document_hash": "08e85ffe14a81c7be3b37bc56fe6499a7a268ff709418b1dc072a2eb8efcda3e",
+        "chunk_count": 5,
+        "skipped": false
+      },
+      {
+        "file_name": "remote_work_policy.md",
+        "document_hash": "1f1a6b59a6ccc2edff83adea4f8efd94037cac1e86aa85b718edb2181e2ec396",
+        "chunk_count": 3,
+        "skipped": false
+      },
+      {
+        "file_name": "security_guidelines.md",
+        "document_hash": "06b11b49e7047098509a357b892c65b111b34bdd327267327fee56216c245dc5",
+        "chunk_count": 2,
+        "skipped": false
+      },
+      {
+        "file_name": "travel_expense_policy.pdf",
+        "document_hash": "b3975bcbe1c413f66abfba6a259255a6e9098b5a3215c251cf8d7d5705cf3805",
+        "chunk_count": 1,
+        "skipped": false
+      }
+    ]
+  },
+  "summary": {
+    "completed": 32,
+    "errors": 0,
+    "needs_review": 3,
+    "answerable_count": 30,
+    "unanswerable_count": 2,
+    "answerable_heuristic_pass": 27,
+    "rejection_pass": 2,
+    "citation_pass": 30,
+    "average_latency_seconds": 15.093,
+    "review_questions": [
+      {
+        "question": "Şifre kuralı ve iki faktörlü doğrulama hangi belgede anlatılır?",
+        "category": "multi_fact",
+        "answerable": true,
+        "expected_answer_overlap": 0.0,
+        "expected_file_cited": true,
+        "rejection_detected": false
+      },
+      {
+        "question": "Who must approve remote work requests?",
+        "category": "cross_language",
+        "answerable": true,
+        "expected_answer_overlap": 0.0,
+        "expected_file_cited": true,
+        "rejection_detected": false
+      },
+      {
+        "question": "What is the minimum password length?",
+        "category": "cross_language",
+        "answerable": true,
+        "expected_answer_overlap": 0.0,
+        "expected_file_cited": true,
+        "rejection_detected": true
+      }
+    ],
+    "errors_by_question": []
+  },
+  "details": [
+    {
+      "question": "Uzaktan çalışma için kimden onay alınmalıdır?",
+      "category": "single_chunk",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "Birim yöneticisinden",
+      "expected_file": "remote_work_policy.md",
+      "answer": "Uzaktan çalışma için onay, **birim yöneticisinden** alınmalıdır. Çalışan, taleplerini en az 3 gün önceden yöneticiye iletmelidir. [Kaynak 1]",
+      "citations": [
+        "Kaynak 1: remote_work_policy.md",
+        "Kaynak 2: travel_expense_policy.pdf, sayfa 1",
+        "Kaynak 3: remote_work_policy.md",
+        "Kaynak 4: onboarding_process.docx, paragraf 5",
+        "Kaynak 5: security_guidelines.md"
+      ],
+      "expected_answer_overlap": 1.0,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 12.964
+    },
+    {
+      "question": "Uzaktan çalışma talebi ne kadar önce iletilmelidir?",
+      "category": "single_chunk",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "En az 3 gün önceden",
+      "expected_file": "remote_work_policy.md",
+      "answer": "Uzaktan çalışma talebi, en az **3 gün** önceden yöneticiye iletilmelidir [Kaynak 1].",
+      "citations": [
+        "Kaynak 1: remote_work_policy.md",
+        "Kaynak 2: travel_expense_policy.pdf, sayfa 1",
+        "Kaynak 3: remote_work_policy.md",
+        "Kaynak 4: onboarding_process.docx, paragraf 2",
+        "Kaynak 5: onboarding_process.docx, paragraf 1"
+      ],
+      "expected_answer_overlap": 1.0,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 8.104
+    },
+    {
+      "question": "Uzaktan çalışanlar hangi çalışma saatlerine uymalıdır?",
+      "category": "single_chunk",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "Normal çalışma saatlerine",
+      "expected_file": "remote_work_policy.md",
+      "answer": "Uzaktan çalışanlar, normal çalışma saatlerine uymak zorundadır. Ayrıca günlük rapor her akşam şirket sistemine yüklenmelidir. Bu bilgiler [Kaynak 2] ve [Kaynak 1]'den alınmıştır.",
+      "citations": [
+        "Kaynak 1: remote_work_policy.md",
+        "Kaynak 2: remote_work_policy.md",
+        "Kaynak 3: onboarding_process.docx, paragraf 2",
+        "Kaynak 4: travel_expense_policy.pdf, sayfa 1",
+        "Kaynak 5: onboarding_process.docx, paragraf 5"
+      ],
+      "expected_answer_overlap": 1.0,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 12.826
+    },
+    {
+      "question": "Çalışanların günlük raporları ne zaman yüklenmelidir?",
+      "category": "single_chunk",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "Her akşam",
+      "expected_file": "remote_work_policy.md",
+      "answer": "Çalışanların günlük raporları her akşam şirket sistemine yüklenmelidir. [Kaynak 1]",
+      "citations": [
+        "Kaynak 1: remote_work_policy.md",
+        "Kaynak 2: onboarding_process.docx, paragraf 2",
+        "Kaynak 3: remote_work_policy.md",
+        "Kaynak 4: travel_expense_policy.pdf, sayfa 1",
+        "Kaynak 5: onboarding_process.docx, paragraf 5"
+      ],
+      "expected_answer_overlap": 1.0,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 7.52
+    },
+    {
+      "question": "İş bilgisayarları hangi hesaplarla kullanılmalıdır?",
+      "category": "single_chunk",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "Şirket tarafından verilen hesaplarla",
+      "expected_file": "remote_work_policy.md",
+      "answer": "İş bilgisayarları yalnızca **şirket tarafından verilen hesaplarla** kullanılmalıdır [Kaynak 1].",
+      "citations": [
+        "Kaynak 1: remote_work_policy.md",
+        "Kaynak 2: security_guidelines.md",
+        "Kaynak 3: onboarding_process.docx, paragraf 4",
+        "Kaynak 4: security_guidelines.md",
+        "Kaynak 5: onboarding_process.docx, paragraf 5"
+      ],
+      "expected_answer_overlap": 1.0,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 7.981
+    },
+    {
+      "question": "Kişisel cihazlar üzerinden hangi veriler paylaşılmamalıdır?",
+      "category": "single_chunk",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "Hassas veriler",
+      "expected_file": "remote_work_policy.md",
+      "answer": "Kişisel cihazlar üzerinden **hassas veriler** paylaşılmamalıdır.\n\nBu bilgiye [Kaynak 1] (remote_work_policy.md) dosyasından ulaşılmıştır.",
+      "citations": [
+        "Kaynak 1: remote_work_policy.md",
+        "Kaynak 2: security_guidelines.md",
+        "Kaynak 3: onboarding_process.docx, paragraf 4",
+        "Kaynak 4: remote_work_policy.md",
+        "Kaynak 5: security_guidelines.md"
+      ],
+      "expected_answer_overlap": 1.0,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 18.679
+    },
+    {
+      "question": "Şifrelerde en az kaç karakter bulunmalıdır?",
+      "category": "single_chunk",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "12 karakter",
+      "expected_file": "security_guidelines.md",
+      "answer": "Şifrelerde en az **12 karakter** bulunmalıdır.\n\nBu bilgi [Kaynak 1] (security_guidelines.md) dosyasında yer almaktadır.",
+      "citations": [
+        "Kaynak 1: security_guidelines.md",
+        "Kaynak 2: security_guidelines.md",
+        "Kaynak 3: remote_work_policy.md",
+        "Kaynak 4: travel_expense_policy.pdf, sayfa 1",
+        "Kaynak 5: onboarding_process.docx, paragraf 4"
+      ],
+      "expected_answer_overlap": 1.0,
+      "expected_file_cited": true,
+      "rejection_detected": true,
+      "latency_seconds": 10.99
+    },
+    {
+      "question": "Şifreler hangi karakter türlerini içermelidir?",
+      "category": "single_chunk",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "Büyük harf, küçük harf, rakam ve özel karakter",
+      "expected_file": "security_guidelines.md",
+      "answer": "Şifrelerin içermesi gereken karakter türleri aşağıdadır:\n\n*   En az bir büyük harf\n*   En az bir küçük harf\n*   En az bir rakam\n*   En az bir özel karakter\n\nBu bilgiler [Kaynak 1] (security_guidelines.md) dosyasında yer almaktadır.",
+      "citations": [
+        "Kaynak 1: security_guidelines.md",
+        "Kaynak 2: security_guidelines.md",
+        "Kaynak 3: remote_work_policy.md",
+        "Kaynak 4: travel_expense_policy.pdf, sayfa 1",
+        "Kaynak 5: onboarding_process.docx, paragraf 5"
+      ],
+      "expected_answer_overlap": 1.0,
+      "expected_file_cited": true,
+      "rejection_detected": true,
+      "latency_seconds": 18.312
+    },
+    {
+      "question": "Hangi güvenlik yöntemi şirket hesabı için zorunludur?",
+      "category": "single_chunk",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "İki faktörlü doğrulama",
+      "expected_file": "security_guidelines.md",
+      "answer": "Şirket hesabı için zorunlu olan güvenlik yöntemi **İki Faktörlü Doğrulama**'dır. Tüm çalışanların şirket hesabı için bu yöntemi kullanması gerekmektedir [Kaynak 3].",
+      "citations": [
+        "Kaynak 1: onboarding_process.docx, paragraf 5",
+        "Kaynak 2: security_guidelines.md",
+        "Kaynak 3: security_guidelines.md",
+        "Kaynak 4: remote_work_policy.md",
+        "Kaynak 5: onboarding_process.docx, paragraf 4"
+      ],
+      "expected_answer_overlap": 1.0,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 12.126
+    },
+    {
+      "question": "İki faktörlü doğrulama hangi amaçla zorunludur?",
+      "category": "single_chunk",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "Hesabın güvenliğini artırmak",
+      "expected_file": "security_guidelines.md",
+      "answer": "İki faktörlü doğrulama, şirket hesabının güvenliğini artırmak amacıyla zorunludur. Bu bilgiye [Kaynak 1] ve [Kaynak 2]'de yer verilmiştir.",
+      "citations": [
+        "Kaynak 1: security_guidelines.md",
+        "Kaynak 2: security_guidelines.md",
+        "Kaynak 3: travel_expense_policy.pdf, sayfa 1",
+        "Kaynak 4: onboarding_process.docx, paragraf 5",
+        "Kaynak 5: remote_work_policy.md"
+      ],
+      "expected_answer_overlap": 0.6667,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 12.931
+    },
+    {
+      "question": "Hassas verilere kimler erişebilir?",
+      "category": "single_chunk",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "Yalnızca yetkili personel",
+      "expected_file": "security_guidelines.md",
+      "answer": "Hassas verilere yalnızca yetkili personel erişebilir [Kaynak 1]. Ayrıca, hassas veriler kişisel cihazlar üzerinden paylaşılmamalıdır [Kaynak 3].",
+      "citations": [
+        "Kaynak 1: security_guidelines.md",
+        "Kaynak 2: security_guidelines.md",
+        "Kaynak 3: remote_work_policy.md",
+        "Kaynak 4: travel_expense_policy.pdf, sayfa 1",
+        "Kaynak 5: remote_work_policy.md"
+      ],
+      "expected_answer_overlap": 1.0,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 11.427
+    },
+    {
+      "question": "Şirket içi belgeler hangi sınıflar ile etiketlenmelidir?",
+      "category": "single_chunk",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "Özel, Kurumsal veya Genel",
+      "expected_file": "security_guidelines.md",
+      "answer": "Şirket içi belgeler **\"Özel\"**, **\"Kurumsal\"** veya **\"Genel\"** sınıfları ile etiketlenmelidir.\n\nBu bilgi **security_guidelines.md** dosyasında yer almaktadır [Kaynak 1].",
+      "citations": [
+        "Kaynak 1: security_guidelines.md",
+        "Kaynak 2: onboarding_process.docx, paragraf 5",
+        "Kaynak 3: security_guidelines.md",
+        "Kaynak 4: travel_expense_policy.pdf, sayfa 1",
+        "Kaynak 5: remote_work_policy.md"
+      ],
+      "expected_answer_overlap": 1.0,
+      "expected_file_cited": true,
+      "rejection_detected": true,
+      "latency_seconds": 13.454
+    },
+    {
+      "question": "Yeni çalışan ilk gün neyi tamamlamalıdır?",
+      "category": "single_chunk",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "Şirket giriş prosedürlerini",
+      "expected_file": "onboarding_process.docx",
+      "answer": "Yeni çalışanların ilk gün tamamlaması gereken işlem, şirket giriş prosedürlerini bitirmektir [Kaynak 1].",
+      "citations": [
+        "Kaynak 1: onboarding_process.docx, paragraf 2",
+        "Kaynak 2: remote_work_policy.md",
+        "Kaynak 3: onboarding_process.docx, paragraf 1",
+        "Kaynak 4: remote_work_policy.md",
+        "Kaynak 5: travel_expense_policy.pdf, sayfa 1"
+      ],
+      "expected_answer_overlap": 1.0,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 8.49
+    },
+    {
+      "question": "Yeni çalışanın ilk tanışma toplantısı kimle planlanır?",
+      "category": "single_chunk",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "İnsan kaynakları ile",
+      "expected_file": "onboarding_process.docx",
+      "answer": "Yeni çalışanın ilk tanışma toplantısı **İnsan Kaynakları** ile planlanır.\n\nBu bilgi, *onboarding_process.docx* dosyasında yer alan metinlerden kaynaklanmaktadır [Kaynak 1].",
+      "citations": [
+        "Kaynak 1: onboarding_process.docx, paragraf 3",
+        "Kaynak 2: onboarding_process.docx, paragraf 2",
+        "Kaynak 3: remote_work_policy.md",
+        "Kaynak 4: onboarding_process.docx, paragraf 5",
+        "Kaynak 5: travel_expense_policy.pdf, sayfa 1"
+      ],
+      "expected_answer_overlap": 1.0,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 13.844
+    },
+    {
+      "question": "Yeni çalışan için bilgisayar ve erişim haklarını hangi ekip hazırlar?",
+      "category": "single_chunk",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "IT ekibi",
+      "expected_file": "onboarding_process.docx",
+      "answer": "Yeni çalışan için bilgisayar ve erişim haklarını **IT ekibi** hazırlar.\n\nBu bilgi, *onboarding_process.docx* dosyasında yer alan metne dayanmaktadır: \"Daha sonra, IT ekibi tarafından bilgisayar ve erişim hakları hazırlanır.\" [Kaynak 1]",
+      "citations": [
+        "Kaynak 1: onboarding_process.docx, paragraf 4",
+        "Kaynak 2: onboarding_process.docx, paragraf 5",
+        "Kaynak 3: security_guidelines.md",
+        "Kaynak 4: remote_work_policy.md",
+        "Kaynak 5: onboarding_process.docx, paragraf 2"
+      ],
+      "expected_answer_overlap": 1.0,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 18.237
+    },
+    {
+      "question": "Onboarding sonunda çalışanlara hangi konular anlatılır?",
+      "category": "single_chunk",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "Şirket politikaları ve güvenlik kuralları",
+      "expected_file": "onboarding_process.docx",
+      "answer": "Onboarding sürecinin sonunda çalışanlara **şirket politikaları ve güvenlik kuralları** anlatılır.\n\nBu bilgi, *onboarding_process.docx* dosyasındaki kayıtlardan (Kaynak 3) elde edilmiştir.",
+      "citations": [
+        "Kaynak 1: onboarding_process.docx, paragraf 1",
+        "Kaynak 2: remote_work_policy.md",
+        "Kaynak 3: onboarding_process.docx, paragraf 5",
+        "Kaynak 4: onboarding_process.docx, paragraf 2",
+        "Kaynak 5: travel_expense_policy.pdf, sayfa 1"
+      ],
+      "expected_answer_overlap": 1.0,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 12.932
+    },
+    {
+      "question": "Harcama talepleri ne zaman yöneticilere iletilmelidir?",
+      "category": "single_chunk",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "Ay sonundan önce",
+      "expected_file": "travel_expense_policy.pdf",
+      "answer": "Harcama talepleri, **ay sonundan önce** yöneticilere iletilmelidir [Kaynak 1].",
+      "citations": [
+        "Kaynak 1: travel_expense_policy.pdf, sayfa 1",
+        "Kaynak 2: remote_work_policy.md",
+        "Kaynak 3: onboarding_process.docx, paragraf 5",
+        "Kaynak 4: security_guidelines.md",
+        "Kaynak 5: onboarding_process.docx, paragraf 2"
+      ],
+      "expected_answer_overlap": 1.0,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 7.38
+    },
+    {
+      "question": "Yol gideri politikasına göre talepler kime iletilmelidir?",
+      "category": "single_chunk",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "Yöneticilere",
+      "expected_file": "travel_expense_policy.pdf",
+      "answer": "Yol gideri politikasına göre harcama talepleri, ay sonundan önce **yöneticilere** iletilmelidir [Kaynak 1].",
+      "citations": [
+        "Kaynak 1: travel_expense_policy.pdf, sayfa 1",
+        "Kaynak 2: remote_work_policy.md",
+        "Kaynak 3: security_guidelines.md",
+        "Kaynak 4: onboarding_process.docx, paragraf 5",
+        "Kaynak 5: remote_work_policy.md"
+      ],
+      "expected_answer_overlap": 1.0,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 9.199
+    },
+    {
+      "question": "Uzaktan çalışma onayı ve talep süresi birlikte nedir?",
+      "category": "multi_fact",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "Onay birim yöneticisinden alınır ve talep en az 3 gün önceden iletilir",
+      "expected_file": "remote_work_policy.md",
+      "answer": "Uzaktan çalışma talebi için gereken süreler aşağıdadır:\n\n*   **Talep Süresi:** Çalışan, uzaktan çalışma taleplerini en az **3 gün** önceden birim yöneticisine iletmelidir [Kaynak 1].\n*   **Onay Süreci:** Uzaktan çalışma onayı, **birim yöneticisinden** alınmalıdır [Kaynak 1].",
+      "citations": [
+        "Kaynak 1: remote_work_policy.md",
+        "Kaynak 2: travel_expense_policy.pdf, sayfa 1",
+        "Kaynak 3: remote_work_policy.md",
+        "Kaynak 4: onboarding_process.docx, paragraf 2",
+        "Kaynak 5: onboarding_process.docx, paragraf 5"
+      ],
+      "expected_answer_overlap": 0.75,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 20.485
+    },
+    {
+      "question": "Şifre kuralı ve iki faktörlü doğrulama hangi belgede anlatılır?",
+      "category": "multi_fact",
+      "answerable": true,
+      "status": "review",
+      "expected_answer": "Güvenlik Yönergeleri",
+      "expected_file": "security_guidelines.md",
+      "answer": "Şifre kuralı ve iki faktörlü doğrulama **security_guidelines.md** belgesinde anlatılır.\n\nBu belgede belirtilen kurallar şunlardır:\n*   **Şifre Politikası:** Şifrelerde en az 12 karakter bulunmalıdır; ayrıca en az bir büyük harf, bir küçük harf, bir rakam ve bir özel karakter içermelidir.\n*   **İki Faktörlü Doğrulama:** Tüm çalışanlar, şirket hesabı için iki faktörlü doğrulama kullanmalıdır.\n\nKaynak: [Kaynak 1], [Kaynak 2]",
+      "citations": [
+        "Kaynak 1: security_guidelines.md",
+        "Kaynak 2: security_guidelines.md",
+        "Kaynak 3: onboarding_process.docx, paragraf 5",
+        "Kaynak 4: travel_expense_policy.pdf, sayfa 1",
+        "Kaynak 5: remote_work_policy.md"
+      ],
+      "expected_answer_overlap": 0.0,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 30.285
+    },
+    {
+      "question": "Who must approve remote work requests?",
+      "category": "cross_language",
+      "answerable": true,
+      "status": "review",
+      "expected_answer": "The unit manager",
+      "expected_file": "remote_work_policy.md",
+      "answer": "Uzaktan çalışma taleplerinin onayı birim yöneticisinden alınmalıdır. Ayrıca, çalışanlar bu taleplerini en az 3 gün önceden yöneticiye iletmelidir. [Kaynak 1]",
+      "citations": [
+        "Kaynak 1: remote_work_policy.md",
+        "Kaynak 2: remote_work_policy.md",
+        "Kaynak 3: travel_expense_policy.pdf, sayfa 1",
+        "Kaynak 4: security_guidelines.md",
+        "Kaynak 5: onboarding_process.docx, paragraf 4"
+      ],
+      "expected_answer_overlap": 0.0,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 12.786
+    },
+    {
+      "question": "What is the minimum password length?",
+      "category": "cross_language",
+      "answerable": true,
+      "status": "review",
+      "expected_answer": "12 characters",
+      "expected_file": "security_guidelines.md",
+      "answer": "Şifrelerde en az **12 karakter** bulunmalıdır.\n\nBu bilgi [Kaynak 1] (security_guidelines.md) dosyasında yer almaktadır.",
+      "citations": [
+        "Kaynak 1: security_guidelines.md",
+        "Kaynak 2: security_guidelines.md",
+        "Kaynak 3: remote_work_policy.md",
+        "Kaynak 4: onboarding_process.docx, paragraf 4",
+        "Kaynak 5: travel_expense_policy.pdf, sayfa 1"
+      ],
+      "expected_answer_overlap": 0.0,
+      "expected_file_cited": true,
+      "rejection_detected": true,
+      "latency_seconds": 10.329
+    },
+    {
+      "question": "Uzaktan çalışma onayı insan kaynaklarından mı alınmalıdır?",
+      "category": "misleading",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "Hayır, onay birim yöneticisinden alınmalıdır",
+      "expected_file": "remote_work_policy.md",
+      "answer": "Hayır, uzaktan çalışma onayı insan kaynaklarından değil, **birim yöneticisinden** alınmalıdır. Çalışan, taleplerini en az 3 gün önceden bu yöneticiye iletmelidir [Kaynak 1]. İnsan kaynakları sadece onboarding sürecinde ilk adım olarak tanışma toplantısı için planlanır [Kaynak 5], uzaktan çalışma onayıyla ilgili bir rolü belirtilmemiştir.",
+      "citations": [
+        "Kaynak 1: remote_work_policy.md",
+        "Kaynak 2: travel_expense_policy.pdf, sayfa 1",
+        "Kaynak 3: remote_work_policy.md",
+        "Kaynak 4: security_guidelines.md",
+        "Kaynak 5: onboarding_process.docx, paragraf 3"
+      ],
+      "expected_answer_overlap": 0.8,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 22.48
+    },
+    {
+      "question": "Uzaktan çalışma talebini aynı gün iletmek yeterli midir?",
+      "category": "misleading",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "Hayır, talep en az 3 gün önceden yöneticiye iletilmelidir",
+      "expected_file": "remote_work_policy.md",
+      "answer": "Hayır, uzaktan çalışma talebini aynı gün iletmek yeterli değildir. Sağlanan belgelere göre, çalışan uzaktan çalışma taleplerini yöneticisine **en az 3 gün önceden** iletmelidir [Kaynak 1].",
+      "citations": [
+        "Kaynak 1: remote_work_policy.md",
+        "Kaynak 2: remote_work_policy.md",
+        "Kaynak 3: travel_expense_policy.pdf, sayfa 1",
+        "Kaynak 4: onboarding_process.docx, paragraf 2",
+        "Kaynak 5: onboarding_process.docx, paragraf 1"
+      ],
+      "expected_answer_overlap": 0.5,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 12.877
+    },
+    {
+      "question": "Şirket hesapları için iki faktörlü doğrulama isteğe bağlı mıdır?",
+      "category": "misleading",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "Hayır, iki faktörlü doğrulama zorunludur",
+      "expected_file": "security_guidelines.md",
+      "answer": "Hayır, şirket hesapları için iki faktörlü doğrulama isteğe bağlı değildir; bu sistem zorunludur.\n\n**Açıklama:**\n*   **Kaynak 2**'de belirtildiği üzere, \"Tüm çalışanlar, şirket hesabı için iki faktörlü doğrulama kullanmalıdır.\"\n*   Ayrıca **Kaynak 1**'de de vurgulandığı gibi, bu sistem \"hesabın güvenliğini artırmak için zorunludur.\"",
+      "citations": [
+        "Kaynak 1: security_guidelines.md",
+        "Kaynak 2: security_guidelines.md",
+        "Kaynak 3: onboarding_process.docx, paragraf 5",
+        "Kaynak 4: remote_work_policy.md",
+        "Kaynak 5: travel_expense_policy.pdf, sayfa 1"
+      ],
+      "expected_answer_overlap": 1.0,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 25.951
+    },
+    {
+      "question": "Şifrelerde 8 karakter yeterli midir?",
+      "category": "misleading",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "Hayır, şifrelerde en az 12 karakter bulunmalıdır",
+      "expected_file": "security_guidelines.md",
+      "answer": "Hayır, şifrelerde 8 karakter yeterli değildir. Sağlanan belgelere göre (Kaynak 1), şirketin güvenlik politikasına göre şifrelerin **en az 12 karakter** içermesi gerekmektedir. Ayrıca şifreler en az bir büyük harf, bir küçük harf, bir rakam ve bir özel karakter içermelidir.",
+      "citations": [
+        "Kaynak 1: security_guidelines.md",
+        "Kaynak 2: security_guidelines.md",
+        "Kaynak 3: remote_work_policy.md",
+        "Kaynak 4: travel_expense_policy.pdf, sayfa 1",
+        "Kaynak 5: remote_work_policy.md"
+      ],
+      "expected_answer_overlap": 0.75,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 17.89
+    },
+    {
+      "question": "Hassas verilere tüm çalışanlar erişebilir mi?",
+      "category": "misleading",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "Hayır, hassas verilere yalnızca yetkili personel erişebilir",
+      "expected_file": "security_guidelines.md",
+      "answer": "Hayır, hassas verilere tüm çalışanlar erişemez. Sağlanan belgelere göre, hassas verilere yalnızca **yetkili personel** tarafından erişilebilmektedir [Kaynak 1]. Tüm çalışanların genel olarak şirket hesabı için iki faktörlü doğrulama kullanması gerektiği belirtilse de, hassas veri erişimi özel bir yetki gerektirmektedir [Kaynak 4, Kaynak 1].",
+      "citations": [
+        "Kaynak 1: security_guidelines.md",
+        "Kaynak 2: remote_work_policy.md",
+        "Kaynak 3: remote_work_policy.md",
+        "Kaynak 4: security_guidelines.md",
+        "Kaynak 5: onboarding_process.docx, paragraf 5"
+      ],
+      "expected_answer_overlap": 0.8571,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 24.494
+    },
+    {
+      "question": "Yeni çalışanın bilgisayar ve erişim haklarını insan kaynakları mı hazırlar?",
+      "category": "misleading",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "Hayır, bilgisayar ve erişim hakları IT ekibi tarafından hazırlanır",
+      "expected_file": "onboarding_process.docx",
+      "answer": "Hayır, yeni çalışanın bilgisayar ve erişim haklarını insan kaynakları hazırlamaz; bu işlem **IT ekibi** tarafından gerçekleştirilir.\n\nBu bilgi **[Kaynak 1]** (onboarding_process.docx) dosyasında yer almaktadır: \"Daha sonra, IT ekibi tarafından bilgisayar ve erişim hakları hazırlanır.\"",
+      "citations": [
+        "Kaynak 1: onboarding_process.docx, paragraf 4",
+        "Kaynak 2: security_guidelines.md",
+        "Kaynak 3: remote_work_policy.md",
+        "Kaynak 4: onboarding_process.docx, paragraf 5",
+        "Kaynak 5: remote_work_policy.md"
+      ],
+      "expected_answer_overlap": 1.0,
+      "expected_file_cited": true,
+      "rejection_detected": true,
+      "latency_seconds": 18.411
+    },
+    {
+      "question": "Harcama talepleri ay sonundan sonra mı yöneticilere iletilmelidir?",
+      "category": "misleading",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "Hayır, harcama talepleri ay sonundan önce yöneticilere iletilmelidir",
+      "expected_file": "travel_expense_policy.pdf",
+      "answer": "Hayır, harcama talepleri ay sonundan **önce** yöneticilere iletilmelidir.\n\nBu bilgiye göre, talep sürecinin zamanlaması şu şekildedir:\n*   Harcama talepleri ay sonundan önce yöneticilere gönderilmelidir ([Kaynak 1]).",
+      "citations": [
+        "Kaynak 1: travel_expense_policy.pdf, sayfa 1",
+        "Kaynak 2: remote_work_policy.md",
+        "Kaynak 3: onboarding_process.docx, paragraf 5",
+        "Kaynak 4: remote_work_policy.md",
+        "Kaynak 5: security_guidelines.md"
+      ],
+      "expected_answer_overlap": 1.0,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 16.486
+    },
+    {
+      "question": "Kişisel cihazlar üzerinden hassas veri paylaşımı serbest midir?",
+      "category": "misleading",
+      "answerable": true,
+      "status": "pass",
+      "expected_answer": "Hayır, kişisel cihazlar üzerinden hassas veriler paylaşılmamalıdır",
+      "expected_file": "remote_work_policy.md",
+      "answer": "Hayır, kişisel cihazlar üzerinden hassas veri paylaşımı serbest değildir.\n\nRetrieved context'e göre:\n*   **Dosya:** remote_work_policy.md ([Kaynak 1])\n    *   \"Kişisel cihazlar üzerinden hassas veriler paylaşılmamalıdır.\"\n\nAyrıca, hassas verilerin yalnızca yetkili personel tarafından erişilebileceği belirtilmiştir ([Kaynak 2]).",
+      "citations": [
+        "Kaynak 1: remote_work_policy.md",
+        "Kaynak 2: security_guidelines.md",
+        "Kaynak 3: onboarding_process.docx, paragraf 4",
+        "Kaynak 4: remote_work_policy.md",
+        "Kaynak 5: security_guidelines.md"
+      ],
+      "expected_answer_overlap": 1.0,
+      "expected_file_cited": true,
+      "rejection_detected": false,
+      "latency_seconds": 22.642
+    },
+    {
+      "question": "Çalışanlara öğle yemeği ücreti ne kadar ödenir?",
+      "category": "unanswerable",
+      "answerable": false,
+      "status": "pass",
+      "expected_answer": "Cevap belgelerde bulunamaz",
+      "expected_file": null,
+      "answer": "Sağlanan belgelerde çalışanlara ödenen öğle yemeği ücreti miktarı veya bu konuyla ilgili herhangi bir bilgi bulunmamaktadır. Verilen kaynaklar uzaktan çalışma politikası, iş güvenliği, şifre yönetimi ve onboarding süreçleri hakkında bilgiler içermektedir.",
+      "citations": [
+        "Kaynak 1: remote_work_policy.md",
+        "Kaynak 2: remote_work_policy.md",
+        "Kaynak 3: onboarding_process.docx, paragraf 2",
+        "Kaynak 4: security_guidelines.md",
+        "Kaynak 5: onboarding_process.docx, paragraf 5"
+      ],
+      "expected_answer_overlap": 0.3333,
+      "expected_file_cited": false,
+      "rejection_detected": true,
+      "latency_seconds": 16.887
+    },
+    {
+      "question": "Şirketin yıllık izin süresi kaç gündür?",
+      "category": "unanswerable",
+      "answerable": false,
+      "status": "pass",
+      "expected_answer": "Cevap belgelerde bulunamaz",
+      "expected_file": null,
+      "answer": "Sağlanan belgelerde şirketin yıllık izin süresi hakkında bilgi bulunmamaktadır. Verilen kaynaklar uzaktan çalışma politikası, onboarding süreci ve yol gideri politikalarını içermekle birlikte, yıllık izin günlerini belirtmemektedir.",
+      "citations": [
+        "Kaynak 1: onboarding_process.docx, paragraf 2",
+        "Kaynak 2: remote_work_policy.md",
+        "Kaynak 3: onboarding_process.docx, paragraf 5",
+        "Kaynak 4: remote_work_policy.md",
+        "Kaynak 5: travel_expense_policy.pdf, sayfa 1"
+      ],
+      "expected_answer_overlap": 0.3333,
+      "expected_file_cited": false,
+      "rejection_detected": true,
+      "latency_seconds": 13.584
+    }
+  ]
+}

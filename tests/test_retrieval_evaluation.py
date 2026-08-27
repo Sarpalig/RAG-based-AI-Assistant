@@ -54,6 +54,45 @@ def test_calculate_recall_at_k_counts_expected_files():
     assert report["details"][2]["answerable"] is False
 
 
+def test_calculate_recall_at_k_supports_multiple_expected_files():
+    questions = [
+        {
+            "question": "Compare GROW and AMS.",
+            "expected_files": ["grow.pdf", "ams.pdf"],
+            "answerable": True,
+            "category": "multi_document",
+        },
+        {
+            "question": "Partial match.",
+            "expected_files": ["grow.pdf", "missing.pdf"],
+            "answerable": True,
+            "category": "multi_document",
+        },
+    ]
+
+    search_results = {
+        "Compare GROW and AMS.": [
+            {"file_name": "ams.pdf"},
+            {"file_name": "grow.pdf"},
+        ],
+        "Partial match.": [
+            {"file_name": "grow.pdf"},
+        ],
+    }
+
+    def fake_search(question, top_k=5):
+        return search_results[question]
+
+    report = calculate_recall_at_k(questions, fake_search, top_k=5)
+
+    assert report["total"] == 2
+    assert report["correct"] == 1
+    assert report["details"][0]["expected_files"] == ["grow.pdf", "ams.pdf"]
+    assert report["details"][0]["found"] is True
+    assert report["details"][0]["rank"] == 2
+    assert report["details"][1]["found"] is False
+
+
 def test_save_report_writes_json(tmp_path):
     report = {
         "top_k": 5,
