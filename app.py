@@ -1,4 +1,7 @@
 import os
+import json
+from pathlib import Path
+from uuid import uuid4
 
 import streamlit as st
 from dotenv import load_dotenv
@@ -10,7 +13,19 @@ from src.vector_store import create_chroma_client, list_indexed_documents
 
 
 DEFAULT_COLLECTION_NAME = "rag_documents"
+PROFILE_STORE_PATH = Path(__file__).resolve().parent / "data" / "user_profiles.json"
 OLLAMA_MODEL_OPTIONS = ["qwen3.5:9b", "gemma4:e4b"]
+PAGE_OPTIONS = ["Sohbet", "Profil", "Belgeler"]
+SENIORITY_OPTIONS = ["Intern", "Junior", "Mid-level", "Senior"]
+DEFAULT_PROFILE_STORE = {
+    "active_profile_id": None,
+    "profiles": [],
+}
+EMPTY_PROFILE_FORM = {
+    "display_name": "",
+    "role": "",
+    "seniority": "Junior",
+}
 
 
 @st.cache_resource
@@ -32,6 +47,99 @@ def selected_ollama_model():
 
 def selected_page():
     return st.session_state.get("selected_page", "Sohbet")
+
+
+def normalize_profile(profile):
+    seniority = profile.get("seniority", EMPTY_PROFILE_FORM["seniority"])
+    if seniority not in SENIORITY_OPTIONS:
+        seniority = EMPTY_PROFILE_FORM["seniority"]
+
+    profile_id = profile.get("id") or uuid4().hex
+    return {
+        "id": str(profile_id),
+        "display_name": str(profile.get("display_name", "")).strip(),
+        "role": str(profile.get("role", "")).strip(),
+        "seniority": seniority,
+    }
+
+
+def normalize_profile_store(store):
+    if not isinstance(store, dict):
+        return DEFAULT_PROFILE_STORE.copy()
+
+    profiles = [
+        normalize_profile(profile)
+        for profile in store.get("profiles", [])
+        if isinstance(profile, dict)
+    ]
+    profile_ids = {profile["id"] for profile in profiles}
+    active_profile_id = store.get("active_profile_id")
+    if active_profile_id not in profile_ids:
+        active_profile_id = None
+
+    return {
+        "active_profile_id": active_profile_id,
+        "profiles": profiles,
+    }
+
+
+def load_profile_store():
+    if not PROFILE_STORE_PATH.exists():
+        return DEFAULT_PROFILE_STORE.copy()
+
+    try:
+        data = json.loads(PROFILE_STORE_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return DEFAULT_PROFILE_STORE.copy()
+
+    return normalize_profile_store(data)
+
+
+def save_profile_store(store):
+    normalized_store = normalize_profile_store(store)
+    PROFILE_STORE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    PROFILE_STORE_PATH.write_text(
+        json.dumps(normalized_store, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    st.session_state.profile_store = normalized_store
+
+
+def find_profile(profile_id):
+    if not profile_id:
+        return None
+
+    for profile in st.session_state.get("profile_store", {}).get("profiles", []):
+        if profile.get("id") == profile_id:
+            return profile
+
+    return None
+
+
+def active_user_profile():
+    store = st.session_state.get("profile_store", DEFAULT_PROFILE_STORE)
+    return find_profile(store.get("active_profile_id"))
+
+
+def current_user_profile():
+    profile = active_user_profile()
+    if not profile:
+        return None
+
+    return {
+        "display_name": profile["display_name"],
+        "role": profile["role"],
+        "seniority": profile["seniority"],
+    }
+
+
+def profile_label(profile):
+    name = profile.get("display_name") or "Isimsiz profil"
+    role = profile.get("role")
+    seniority = profile.get("seniority", "Genel")
+    if role:
+        return f"{name} - {role} ({seniority})"
+    return f"{name} ({seniority})"
 
 
 def load_pipeline(show_status=False, ollama_model=None):
@@ -68,6 +176,12 @@ def initialize_session_state():
         st.session_state.selected_page = "Sohbet"
     if "document_notice" not in st.session_state:
         st.session_state.document_notice = None
+    if "profile_notice" not in st.session_state:
+        st.session_state.profile_notice = None
+    if "profile_store" not in st.session_state:
+        st.session_state.profile_store = load_profile_store()
+    if "editing_profile_id" not in st.session_state:
+        st.session_state.editing_profile_id = None
 
 
 def load_indexed_documents_on_startup():
@@ -197,7 +311,7 @@ def answer_question(query, ollama_model=None):
     try:
         rag = load_pipeline(ollama_model=ollama_model)
         with st.spinner("Yaziyor..."):
-            return rag.answer_query(query)
+            return rag.answer_query(query, user_profile=current_user_profile())
     except LLMError as exc:
         raise LLMError(f"LLM hatasi: {exc}") from exc
     except Exception as exc:
@@ -232,34 +346,46 @@ def render_chat():
         render_message(message)
 
 
-def render_sidebar():
-    with st.sidebar:
-        st.radio(
-            "Ekran",
-            options=["Sohbet", "Belgeler"],
-            key="selected_page",
-        )
+def render_chat_settings():
+    settings = st.columns([2, 3, 1])
+    current_model = selected_ollama_model()
+    selected_index = (
+        OLLAMA_MODEL_OPTIONS.index(current_model)
+        if current_model in OLLAMA_MODEL_OPTIONS
+        else 0
+    )
 
-        st.divider()
-        st.header("Model")
-        current_model = selected_ollama_model()
-        selected_index = (
-            OLLAMA_MODEL_OPTIONS.index(current_model)
-            if current_model in OLLAMA_MODEL_OPTIONS
-            else 0
-        )
+    with settings[0]:
         st.selectbox(
             "Ollama modeli",
             options=OLLAMA_MODEL_OPTIONS,
             index=selected_index,
             key="selected_ollama_model",
         )
-        st.caption("Model degisikligi sonraki cevaplarda kullanilir.")
 
-        st.divider()
+    with settings[1]:
+        active_profile = active_user_profile()
+        if active_profile:
+            st.markdown(f"**Aktif profil:** {profile_label(active_profile)}")
+            st.caption("Cevap anlatimi bu profile gore uyarlanir.")
+        else:
+            st.markdown("**Aktif profil:** Yok")
+            st.caption("Cevaplar genel seviyede uretilir.")
+
+    with settings[2]:
+        st.write("")
         if st.button("Sohbeti temizle", use_container_width=True):
             st.session_state.messages = []
             st.rerun()
+
+
+def render_sidebar():
+    with st.sidebar:
+        st.radio(
+            "Ekran",
+            options=PAGE_OPTIONS,
+            key="selected_page",
+        )
 
 
 def render_document_upload():
@@ -321,9 +447,208 @@ def render_documents_page():
     render_document_list()
 
 
+def save_profile(display_name, role, seniority, profile_id=None):
+    store = st.session_state.get("profile_store", DEFAULT_PROFILE_STORE.copy())
+    profiles = store.get("profiles", [])
+    normalized_profile = normalize_profile(
+        {
+            "id": profile_id or uuid4().hex,
+            "display_name": display_name,
+            "role": role,
+            "seniority": seniority,
+        }
+    )
+
+    updated_profiles = []
+    profile_found = False
+    for profile in profiles:
+        if profile.get("id") == normalized_profile["id"]:
+            updated_profiles.append(normalized_profile)
+            profile_found = True
+        else:
+            updated_profiles.append(profile)
+
+    if not profile_found:
+        updated_profiles.append(normalized_profile)
+
+    save_profile_store(
+        {
+            "active_profile_id": normalized_profile["id"],
+            "profiles": updated_profiles,
+        }
+    )
+    return normalized_profile
+
+
+def activate_profile(profile_id):
+    store = st.session_state.get("profile_store", DEFAULT_PROFILE_STORE.copy())
+    save_profile_store(
+        {
+            "active_profile_id": profile_id,
+            "profiles": store.get("profiles", []),
+        }
+    )
+
+
+def delete_profile(profile_id):
+    store = st.session_state.get("profile_store", DEFAULT_PROFILE_STORE.copy())
+    profiles = [
+        profile
+        for profile in store.get("profiles", [])
+        if profile.get("id") != profile_id
+    ]
+    active_profile_id = store.get("active_profile_id")
+    if active_profile_id == profile_id:
+        active_profile_id = None
+
+    save_profile_store(
+        {
+            "active_profile_id": active_profile_id,
+            "profiles": profiles,
+        }
+    )
+
+
+def render_profile_page():
+    st.title("Profil Yonetimi")
+    st.caption(
+        "Giris zorunlu degil. Profiller lokal JSON dosyasinda tutulur; chatbot aktif profili kullanir."
+    )
+
+    notice = st.session_state.get("profile_notice")
+    if notice:
+        if notice["type"] == "success":
+            st.success(notice["message"])
+        else:
+            st.info(notice["message"])
+        st.session_state.profile_notice = None
+
+    store = st.session_state.get("profile_store", DEFAULT_PROFILE_STORE.copy())
+    profiles = store.get("profiles", [])
+    active_profile = active_user_profile()
+
+    if active_profile:
+        st.success(f"Aktif profil: {profile_label(active_profile)}")
+    else:
+        st.info("Aktif profil yok. Sohbet cevaplari genel seviyede uretilir.")
+
+    if profiles:
+        profile_options = [
+            (f"{index}. {profile_label(profile)}", profile["id"])
+            for index, profile in enumerate(profiles, start=1)
+        ]
+        active_index = 0
+        if active_profile:
+            active_profile_ids = [profile_id for _, profile_id in profile_options]
+            active_index = active_profile_ids.index(active_profile["id"])
+
+        selected_label = st.selectbox(
+            "Profil sec",
+            options=[label for label, _ in profile_options],
+            index=active_index,
+        )
+        selected_profile_id = dict(profile_options)[selected_label]
+
+        profile_actions = st.columns([1, 1, 1, 3])
+        with profile_actions[0]:
+            if st.button("Aktif yap", type="primary", use_container_width=True):
+                activate_profile(selected_profile_id)
+                st.session_state.profile_notice = {
+                    "type": "success",
+                    "message": "Aktif profil guncellendi.",
+                }
+                st.rerun()
+        with profile_actions[1]:
+            if st.button("Duzenle", use_container_width=True):
+                st.session_state.editing_profile_id = selected_profile_id
+                st.rerun()
+        with profile_actions[2]:
+            if st.button("Profili sil", use_container_width=True):
+                delete_profile(selected_profile_id)
+                if st.session_state.editing_profile_id == selected_profile_id:
+                    st.session_state.editing_profile_id = None
+                st.session_state.profile_notice = {
+                    "type": "info",
+                    "message": "Profil silindi.",
+                }
+                st.rerun()
+
+    if st.button("Yeni profil olustur"):
+        st.session_state.editing_profile_id = None
+        st.rerun()
+
+    st.divider()
+    st.subheader("Profil olustur / guncelle")
+
+    editing_profile = find_profile(st.session_state.editing_profile_id)
+    if not editing_profile:
+        editing_profile = EMPTY_PROFILE_FORM
+    seniority_index = (
+        SENIORITY_OPTIONS.index(editing_profile["seniority"])
+        if editing_profile.get("seniority") in SENIORITY_OPTIONS
+        else SENIORITY_OPTIONS.index(EMPTY_PROFILE_FORM["seniority"])
+    )
+
+    with st.form("profile_form"):
+        display_name = st.text_input(
+            "Ad soyad",
+            value=editing_profile.get("display_name", ""),
+            max_chars=80,
+        )
+        role = st.text_input(
+            "Rol / ekip (opsiyonel)",
+            value=editing_profile.get("role", ""),
+            max_chars=80,
+        )
+        seniority = st.selectbox(
+            "Kidem seviyesi",
+            options=SENIORITY_OPTIONS,
+            index=seniority_index,
+        )
+        update_existing_profile = bool(find_profile(st.session_state.editing_profile_id))
+
+        submitted = st.form_submit_button(
+            "Profili guncelle" if update_existing_profile else "Profil olustur",
+            type="primary",
+        )
+
+    if submitted:
+        profile = save_profile(
+            display_name=display_name,
+            role=role,
+            seniority=seniority,
+            profile_id=editing_profile["id"] if update_existing_profile else None,
+        )
+        st.session_state.editing_profile_id = profile["id"]
+        st.session_state.profile_notice = {
+            "type": "success",
+            "message": f"{profile_label(profile)} kaydedildi ve aktif yapildi.",
+        }
+        st.rerun()
+
+    if st.button("Aktif profili kapat"):
+        activate_profile(None)
+        st.session_state.profile_notice = {
+            "type": "info",
+            "message": "Aktif profil kapatildi. Sohbet genel seviyede devam edecek.",
+        }
+        st.rerun()
+
+    st.divider()
+    st.subheader("Cevap uyarlamasi")
+    st.write(
+        "Intern: temel kavramlar ve adimlar daha acik anlatilir. "
+        "Junior: uygulamaya donuk adimlar ve kritik terimler one cikar. "
+        "Mid-level: dengeli teknik detay verilir. "
+        "Senior: daha kisa, risk ve karar noktalarina odakli cevap uretilir."
+    )
+
+
 def render_chat_page():
     st.title("Kurumsal Dokuman Asistani")
     st.caption("Kaynakli cevap ureten RAG tabanli dokuman sohbeti.")
+    render_chat_settings()
+    st.divider()
 
     render_chat()
 
@@ -364,6 +689,8 @@ def main():
 
     if selected_page() == "Belgeler":
         render_documents_page()
+    elif selected_page() == "Profil":
+        render_profile_page()
     else:
         render_chat_page()
 

@@ -141,6 +141,30 @@ def test_index_file_uses_configured_chunk_settings(monkeypatch):
     assert result["chunk_count"] == 1
 
 
+def test_chunk_settings_for_pdf_uses_larger_context_window():
+    pipeline = object.__new__(RagPipeline)
+    pipeline.chunk_size = 300
+    pipeline.chunk_overlap = 30
+
+    settings = pipeline.chunk_settings_for_documents(
+        [{"text": "PDF text", "document_type": "pdf"}]
+    )
+
+    assert settings == {"chunk_size": 800, "chunk_overlap": 100}
+
+
+def test_chunk_settings_for_markdown_uses_pipeline_defaults():
+    pipeline = object.__new__(RagPipeline)
+    pipeline.chunk_size = 300
+    pipeline.chunk_overlap = 30
+
+    settings = pipeline.chunk_settings_for_documents(
+        [{"text": "Markdown text", "document_type": "md"}]
+    )
+
+    assert settings == {"chunk_size": 300, "chunk_overlap": 30}
+
+
 def test_build_rag_prompt_includes_rules_question_and_sources():
     pipeline = object.__new__(RagPipeline)
 
@@ -159,6 +183,26 @@ def test_build_rag_prompt_includes_rules_question_and_sources():
     assert "[Kaynak 1]" in prompt
     assert "remote_work_policy.md" in prompt
     assert "Uzaktan çalışma için onay birim yöneticisinden alınır." in prompt
+
+
+def test_build_rag_prompt_includes_seniority_guidance_when_profile_is_active():
+    pipeline = object.__new__(RagPipeline)
+
+    prompt = pipeline.build_rag_prompt(
+        "What should I do first?",
+        [{"file_name": "onboarding.md", "text": "Complete the first checklist item."}],
+        {"seniority": "Intern"},
+    )
+
+    assert "Audience adaptation:" in prompt
+    assert "The user is an intern" in prompt
+    assert "Use only the provided context" in prompt
+    assert "Complete the first checklist item." in prompt
+
+
+def test_build_audience_guidance_ignores_missing_or_unknown_profile():
+    assert RagPipeline.build_audience_guidance(None) == ""
+    assert RagPipeline.build_audience_guidance({"seniority": "Unknown"}) == ""
 
 
 def test_answer_query_searches_builds_prompt_and_calls_openrouter(monkeypatch):
@@ -210,6 +254,38 @@ def test_answer_query_searches_builds_prompt_and_calls_openrouter(monkeypatch):
 
     assert answer == "Manager approval is required. [Kaynak 1] "
     assert citations == ["Kaynak 1: remote_work_policy.md"]
+
+
+def test_answer_query_passes_user_profile_to_prompt(monkeypatch):
+    pipeline = object.__new__(RagPipeline)
+    pipeline.llm_provider = "ollama"
+    pipeline.ollama_base_url = "http://localhost:11434"
+    pipeline.ollama_model = "qwen3.5:9b"
+    pipeline.openrouter_api_key = None
+    pipeline.openrouter_model = None
+    pipeline.openrouter_fallback_model = "openrouter/free"
+    user_profile = {"seniority": "Senior"}
+    seen = {}
+    search_results = [{"file_name": "policy.md", "text": "Policy text."}]
+
+    monkeypatch.setattr(pipeline, "search", lambda question, top_k=5: search_results)
+
+    def fake_build_rag_prompt(question, results, profile=None):
+        seen["profile"] = profile
+        return "prompt"
+
+    monkeypatch.setattr(pipeline, "build_rag_prompt", fake_build_rag_prompt)
+    monkeypatch.setattr(
+        rag_pipeline,
+        "query_llm",
+        lambda **kwargs: "Answer [Kaynak 1]",
+    )
+
+    answer, citations = pipeline.answer_query("Question?", user_profile=user_profile)
+
+    assert seen["profile"] == user_profile
+    assert answer == "Answer [Kaynak 1]"
+    assert citations == ["Kaynak 1: policy.md"]
 
 
 def test_answer_query_lists_only_sources_used_in_answer(monkeypatch):

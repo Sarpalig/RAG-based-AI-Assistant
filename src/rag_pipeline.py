@@ -20,6 +20,40 @@ from .vector_store import (
 )
 
 
+AUDIENCE_GUIDANCE_BY_SENIORITY = {
+    "intern": (
+        "The user is an intern. Explain the answer step by step, define important "
+        "terms briefly, and avoid assuming prior domain knowledge. Keep every claim "
+        "grounded in the retrieved context."
+    ),
+    "junior": (
+        "The user is junior-level. Use a practical, structured explanation, call out "
+        "non-obvious terms, and include concrete next steps when the context supports "
+        "them."
+    ),
+    "mid-level": (
+        "The user is mid-level. Use a balanced technical explanation, assume basic "
+        "professional familiarity, and focus on decisions, dependencies, and important "
+        "details from the context."
+    ),
+    "senior": (
+        "The user is senior-level. Be concise, emphasize constraints, risks, trade-offs, "
+        "and source-specific details, and skip basic explanations unless the question "
+        "asks for them."
+    ),
+}
+DEFAULT_CHUNK_SETTINGS = {
+    "chunk_size": 300,
+    "chunk_overlap": 30,
+}
+CHUNK_SETTINGS_BY_DOCUMENT_TYPE = {
+    "pdf": {
+        "chunk_size": 800,
+        "chunk_overlap": 100,
+    },
+}
+
+
 class RagPipeline:
     def __init__(
         self,
@@ -27,8 +61,8 @@ class RagPipeline:
         collection_name="rag_documents",
         embedding_model_name=None,
         ollama_model=None,
-        chunk_size=300,
-        chunk_overlap=30,
+        chunk_size=DEFAULT_CHUNK_SETTINGS["chunk_size"],
+        chunk_overlap=DEFAULT_CHUNK_SETTINGS["chunk_overlap"],
     ):
         load_dotenv()
 
@@ -73,11 +107,8 @@ class RagPipeline:
         for document in documents:
             document["document_hash"] = document_hash
 
-        chunks = split_text(
-            documents,
-            chunk_size=self.chunk_size,
-            chunk_overlap=self.chunk_overlap,
-        )
+        chunk_settings = self.chunk_settings_for_documents(documents)
+        chunks = split_text(documents, **chunk_settings)
         if not chunks:
             return {
                 "file_name": file_name,
@@ -105,6 +136,25 @@ class RagPipeline:
                 file_name = Path(file_name).name
             results.append(self.index_file(file, file_name))
         return results
+
+    def chunk_settings_for_documents(self, documents):
+        document_type = self._document_type_for_chunking(documents)
+        type_settings = CHUNK_SETTINGS_BY_DOCUMENT_TYPE.get(document_type)
+        if type_settings:
+            return type_settings.copy()
+
+        return {
+            "chunk_size": self.chunk_size,
+            "chunk_overlap": self.chunk_overlap,
+        }
+
+    @staticmethod
+    def _document_type_for_chunking(documents):
+        for document in documents:
+            document_type = document.get("document_type")
+            if document_type:
+                return str(document_type).casefold()
+        return None
 
     def delete_document(self, document_hash):
         delete_document(self.collection, document_hash)
@@ -147,7 +197,7 @@ class RagPipeline:
 
         return formatted_results
 
-    def build_rag_prompt(self, question, results):
+    def build_rag_prompt(self, question, results, user_profile=None):
         system_prompt = """You are a retrieval-augmented generation (RAG) document assistant.
 
 Your task is to answer the user's question using only the information provided in the retrieved context.
@@ -166,6 +216,13 @@ Rules:
 11. Use the exact citation format [Kaynak 1], [Kaynak 2], etc. Do not write citations without square brackets.
 
 The goal is to provide accurate, grounded, and traceable answers based strictly on the retrieved documents."""
+        audience_guidance = self.build_audience_guidance(user_profile)
+        audience_section = ""
+        if audience_guidance:
+            audience_section = f"""
+
+Audience adaptation:
+{audience_guidance}"""
         source_blocks = []
 
         for index, result in enumerate(results, start=1):
@@ -178,7 +235,7 @@ Metin:
 
         sources_text = "\n\n".join(source_blocks)
 
-        return f"""{system_prompt}
+        return f"""{system_prompt}{audience_section}
 
 Soru:
 {question}
@@ -187,12 +244,12 @@ Kaynaklar:
 {sources_text}
 """
 
-    def answer_query(self, question, top_k=5):
+    def answer_query(self, question, top_k=5, user_profile=None):
         search_results = self.search(question, top_k)
         if not search_results:
             return "Bu bilgi verilen belgelerde bulunamadı.", []
 
-        prompt = self.build_rag_prompt(question, search_results)
+        prompt = self.build_rag_prompt(question, search_results, user_profile)
 
         answer = self._query_llm(prompt)
         all_citations = self.build_citations(search_results)
@@ -201,6 +258,19 @@ Kaynaklar:
         used_source_numbers = self.extract_citation_numbers(answer, len(all_citations))
         citations = self.select_used_citations(all_citations, used_source_numbers)
         return answer, citations
+
+    @staticmethod
+    def build_audience_guidance(user_profile):
+        if not user_profile:
+            return ""
+
+        if isinstance(user_profile, str):
+            seniority = user_profile
+        else:
+            seniority = user_profile.get("seniority", "")
+
+        normalized_seniority = str(seniority).strip().casefold()
+        return AUDIENCE_GUIDANCE_BY_SENIORITY.get(normalized_seniority, "")
 
     def _query_llm(self, prompt):
         return query_llm(
