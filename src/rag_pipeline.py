@@ -26,6 +26,7 @@ class RagPipeline:
         chroma_dir=None,
         collection_name="rag_documents",
         embedding_model_name=None,
+        ollama_model=None,
         chunk_size=300,
         chunk_overlap=30,
     ):
@@ -39,7 +40,7 @@ class RagPipeline:
         )
         self.llm_provider = os.getenv("LLM_PROVIDER", "ollama")
         self.ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-        self.ollama_model = os.getenv("OLLAMA_MODEL", "qwen3.5:9b")
+        self.ollama_model = ollama_model or os.getenv("OLLAMA_MODEL", "qwen3.5:9b")
         self.openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
         self.openrouter_model = os.getenv("OPENROUTER_MODEL")
         self.openrouter_fallback_model = os.getenv(

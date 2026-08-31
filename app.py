@@ -10,27 +10,46 @@ from src.vector_store import create_chroma_client, list_indexed_documents
 
 
 DEFAULT_COLLECTION_NAME = "rag_documents"
+OLLAMA_MODEL_OPTIONS = ["qwen3.5:9b", "gemma4:e4b"]
 
 
 @st.cache_resource
-def get_pipeline():
-    return RagPipeline()
+def get_pipeline(ollama_model):
+    return RagPipeline(ollama_model=ollama_model)
 
 
-def load_pipeline(show_status=False):
+def configured_ollama_model():
+    load_dotenv()
+    env_model = os.getenv("OLLAMA_MODEL", OLLAMA_MODEL_OPTIONS[0])
+    if env_model in OLLAMA_MODEL_OPTIONS:
+        return env_model
+    return OLLAMA_MODEL_OPTIONS[0]
+
+
+def selected_ollama_model():
+    return st.session_state.get("selected_ollama_model", configured_ollama_model())
+
+
+def selected_page():
+    return st.session_state.get("selected_page", "Sohbet")
+
+
+def load_pipeline(show_status=False, ollama_model=None):
+    model = ollama_model or selected_ollama_model()
+
     if not show_status:
-        pipeline = get_pipeline()
+        pipeline = get_pipeline(model)
         if not hasattr(pipeline, "list_indexed_documents"):
             get_pipeline.clear()
-            pipeline = get_pipeline()
+            pipeline = get_pipeline(model)
         return pipeline
 
     with st.status("RAG pipeline hazirlaniyor...", expanded=False) as status:
         status.write("Embedding modeli ve vector store yukleniyor.")
-        pipeline = get_pipeline()
+        pipeline = get_pipeline(model)
         if not hasattr(pipeline, "list_indexed_documents"):
             get_pipeline.clear()
-            pipeline = get_pipeline()
+            pipeline = get_pipeline(model)
         status.update(label="RAG pipeline hazir.", state="complete")
 
     return pipeline
@@ -43,6 +62,12 @@ def initialize_session_state():
         st.session_state.indexed_documents_loaded = False
     if "messages" not in st.session_state:
         st.session_state.messages = []
+    if "selected_ollama_model" not in st.session_state:
+        st.session_state.selected_ollama_model = configured_ollama_model()
+    if "selected_page" not in st.session_state:
+        st.session_state.selected_page = "Sohbet"
+    if "document_notice" not in st.session_state:
+        st.session_state.document_notice = None
 
 
 def load_indexed_documents_on_startup():
@@ -149,12 +174,28 @@ def refresh_document_list():
         st.error(f"Belge listesi yenilenirken hata olustu: {exc}")
 
 
-def answer_question(query):
+def delete_indexed_document(document_hash):
+    document = st.session_state.indexed_documents.get(document_hash)
+    file_name = document.get("file_name", "Belge") if document else "Belge"
+
+    try:
+        rag = load_pipeline(show_status=True)
+        rag.delete_document(document_hash)
+        refresh_indexed_documents(rag)
+        st.session_state.document_notice = {
+            "type": "success",
+            "message": f"{file_name} indeksten kaldirildi.",
+        }
+    except Exception as exc:
+        st.error(f"{file_name} silinirken hata olustu: {exc}")
+
+
+def answer_question(query, ollama_model=None):
     if not query.strip():
         raise ValueError("Once bir soru yazin.")
 
     try:
-        rag = load_pipeline()
+        rag = load_pipeline(ollama_model=ollama_model)
         with st.spinner("Yaziyor..."):
             return rag.answer_query(query)
     except LLMError as exc:
@@ -163,14 +204,21 @@ def answer_question(query):
         raise RuntimeError(f"Soru cevaplanirken hata olustu: {exc}") from exc
 
 
+def render_citations(citations, expanded=False):
+    if citations:
+        with st.expander("Kaynaklar", expanded=expanded):
+            for citation in citations:
+                st.write(f"- {citation}")
+    else:
+        st.info("Bu cevap icin gosterilecek kaynak bulunamadi.")
+
+
 def render_message(message):
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
         citations = message.get("citations") or []
         if citations:
-            with st.expander("Kaynaklar", expanded=False):
-                for citation in citations:
-                    st.write(f"- {citation}")
+            render_citations(citations, expanded=False)
 
 
 def render_chat():
@@ -186,24 +234,27 @@ def render_chat():
 
 def render_sidebar():
     with st.sidebar:
-        st.header("Documents")
-        st.caption("PDF, DOCX veya Markdown dosyalarini indeksle.")
-
-        uploaded_files = st.file_uploader(
-            "Dosya yukle",
-            type=["pdf", "docx", "md"],
-            accept_multiple_files=True,
+        st.radio(
+            "Ekran",
+            options=["Sohbet", "Belgeler"],
+            key="selected_page",
         )
 
-        if st.button("Belgeleri hazirla", type="primary", use_container_width=True):
-            index_uploaded_files(uploaded_files)
-
-        if st.button("Listeyi yenile", use_container_width=True):
-            refresh_document_list()
-
         st.divider()
-        st.subheader("Indekslenen belgeler")
-        show_indexed_documents()
+        st.header("Model")
+        current_model = selected_ollama_model()
+        selected_index = (
+            OLLAMA_MODEL_OPTIONS.index(current_model)
+            if current_model in OLLAMA_MODEL_OPTIONS
+            else 0
+        )
+        st.selectbox(
+            "Ollama modeli",
+            options=OLLAMA_MODEL_OPTIONS,
+            index=selected_index,
+            key="selected_ollama_model",
+        )
+        st.caption("Model degisikligi sonraki cevaplarda kullanilir.")
 
         st.divider()
         if st.button("Sohbeti temizle", use_container_width=True):
@@ -211,17 +262,85 @@ def render_sidebar():
             st.rerun()
 
 
+def render_document_upload():
+    st.subheader("Belge ekle")
+    uploaded_files = st.file_uploader(
+        "PDF, DOCX veya Markdown dosyasi sec",
+        type=["pdf", "docx", "md"],
+        accept_multiple_files=True,
+    )
+
+    actions = st.columns([1, 1, 4])
+    with actions[0]:
+        if st.button("Belgeleri hazirla", type="primary", use_container_width=True):
+            index_uploaded_files(uploaded_files)
+    with actions[1]:
+        if st.button("Listeyi yenile", use_container_width=True):
+            refresh_document_list()
+
+
+def render_document_list():
+    st.subheader("Indekslenen belgeler")
+
+    if not st.session_state.indexed_documents:
+        st.info("Henuz indekslenen belge yok.")
+        return
+
+    header = st.columns([4, 1, 1, 1])
+    header[0].markdown("**Dosya**")
+    header[1].markdown("**Tur**")
+    header[2].markdown("**Parca**")
+    header[3].markdown("**Islem**")
+
+    for document_hash, document in st.session_state.indexed_documents.items():
+        row = st.columns([4, 1, 1, 1])
+        row[0].write(document.get("file_name", "Bilinmeyen dosya"))
+        row[1].write(document.get("document_type", "-"))
+        row[2].write(document.get("chunk_count", 0))
+        if row[3].button(
+            "Sil",
+            key=f"delete_{document_hash}",
+            use_container_width=True,
+        ):
+            delete_indexed_document(document_hash)
+            st.rerun()
+
+
+def render_documents_page():
+    st.title("Belgeler")
+    st.caption("RAG indeksine belge ekle, mevcut belgeleri gor ve gerekmeyenleri kaldir.")
+    notice = st.session_state.get("document_notice")
+    if notice:
+        if notice["type"] == "success":
+            st.success(notice["message"])
+        else:
+            st.info(notice["message"])
+        st.session_state.document_notice = None
+    render_document_upload()
+    st.divider()
+    render_document_list()
+
+
+def render_chat_page():
+    st.title("Kurumsal Dokuman Asistani")
+    st.caption("Kaynakli cevap ureten RAG tabanli dokuman sohbeti.")
+
+    render_chat()
+
+    query = st.chat_input("Dokumanlar hakkinda soru sor")
+    if query:
+        st.session_state.messages.append({"role": "user", "content": query})
+        with st.chat_message("user"):
+            st.markdown(query)
+        render_assistant_response(query)
+
+
 def render_assistant_response(query):
     with st.chat_message("assistant"):
         try:
             answer, citations = answer_question(query)
             st.markdown(answer)
-            if citations:
-                with st.expander("Kaynaklar", expanded=True):
-                    for citation in citations:
-                        st.write(f"- {citation}")
-            else:
-                st.info("Bu cevap icin gosterilecek kaynak bulunamadi.")
+            render_citations(citations, expanded=True)
         except Exception as exc:
             answer = str(exc)
             citations = []
@@ -243,17 +362,10 @@ def main():
 
     render_sidebar()
 
-    st.title("Kurumsal Dokuman Asistani")
-    st.caption("Kaynakli cevap ureten RAG tabanli dokuman sohbeti.")
-
-    render_chat()
-
-    query = st.chat_input("Dokumanlar hakkinda soru sor")
-    if query:
-        st.session_state.messages.append({"role": "user", "content": query})
-        with st.chat_message("user"):
-            st.markdown(query)
-        render_assistant_response(query)
+    if selected_page() == "Belgeler":
+        render_documents_page()
+    else:
+        render_chat_page()
 
 
 if __name__ == "__main__":
