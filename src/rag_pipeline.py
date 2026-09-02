@@ -179,7 +179,7 @@ class RagPipeline:
 
         return formatted_results
 
-    def build_rag_prompt(self, question, results, user_profile=None):
+    def build_rag_prompt(self, question, results, user_profile=None, chat_history=None):
         system_prompt = """You are a retrieval-augmented generation (RAG) document assistant.
 
 Your task is to answer the user's question using only the information provided in the retrieved context.
@@ -196,6 +196,7 @@ Rules:
 9. When source information is available, cite the relevant source using the source identifiers provided in the context.
 10. Never fabricate a source or citation.
 11. Use the exact citation format [Kaynak 1], [Kaynak 2], etc. Do not write citations without square brackets.
+12. Conversation context may be used only to understand references in the current question. Do not treat conversation context as source evidence.
 
 The goal is to provide accurate, grounded, and traceable answers based strictly on the retrieved documents."""
         audience_guidance = self.build_audience_guidance(user_profile)
@@ -205,6 +206,7 @@ The goal is to provide accurate, grounded, and traceable answers based strictly 
 
 Audience adaptation:
 {audience_guidance}"""
+        history_section = self.build_chat_history_section(chat_history)
         source_blocks = []
 
         for index, result in enumerate(results, start=1):
@@ -217,7 +219,7 @@ Metin:
 
         sources_text = "\n\n".join(source_blocks)
 
-        return f"""{system_prompt}{audience_section}
+        return f"""{system_prompt}{audience_section}{history_section}
 
 Soru:
 {question}
@@ -226,12 +228,17 @@ Kaynaklar:
 {sources_text}
 """
 
-    def answer_query(self, question, top_k=5, user_profile=None):
+    def answer_query(self, question, top_k=5, user_profile=None, chat_history=None):
         search_results = self.search(question, top_k)
         if not search_results:
             return "Bu bilgi verilen belgelerde bulunamadı.", []
 
-        prompt = self.build_rag_prompt(question, search_results, user_profile)
+        prompt = self.build_rag_prompt(
+            question,
+            search_results,
+            user_profile,
+            chat_history,
+        )
 
         answer = self._query_llm(prompt)
         all_citations = self.build_citations(search_results)
@@ -248,6 +255,32 @@ Kaynaklar:
     @staticmethod
     def build_role_guidance(role):
         return build_role_guidance(role)
+
+    @staticmethod
+    def build_chat_history_section(chat_history):
+        if not chat_history:
+            return ""
+
+        lines = []
+        for message in chat_history:
+            role = message.get("role")
+            content = str(message.get("content", "")).strip()
+            if role == "user":
+                label = "Kullanıcı"
+            elif role == "assistant":
+                label = "Asistan"
+            else:
+                continue
+            if content:
+                lines.append(f"{label}: {content}")
+
+        if not lines:
+            return ""
+
+        return f"""
+
+Konuşma bağlamı:
+{chr(10).join(lines)}"""
 
     def _query_llm(self, prompt):
         return query_llm(

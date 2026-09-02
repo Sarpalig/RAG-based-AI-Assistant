@@ -215,6 +215,40 @@ def test_build_rag_prompt_includes_project_manager_role_guidance():
     assert "The user is senior-level" in prompt
 
 
+def test_build_rag_prompt_includes_chat_history_as_context_only():
+    pipeline = object.__new__(RagPipeline)
+
+    prompt = pipeline.build_rag_prompt(
+        "What about the approval?",
+        [{"file_name": "policy.md", "text": "Manager approval is required."}],
+        chat_history=[
+            {"role": "user", "content": "We discussed remote work."},
+            {"role": "assistant", "content": "Remote work has an approval flow."},
+        ],
+    )
+
+    assert "Conversation context may be used only to understand references" in prompt
+    assert "Konuşma bağlamı:" in prompt
+    assert "Kullanıcı: We discussed remote work." in prompt
+    assert "Asistan: Remote work has an approval flow." in prompt
+    assert "Kaynaklar:" in prompt
+    assert "Manager approval is required." in prompt
+
+
+def test_build_chat_history_section_ignores_empty_or_unknown_messages():
+    section = RagPipeline.build_chat_history_section(
+        [
+            {"role": "system", "content": "Hidden instruction"},
+            {"role": "user", "content": "   "},
+            {"role": "assistant", "content": "Previous answer"},
+        ]
+    )
+
+    assert "Hidden instruction" not in section
+    assert "Kullanıcı:" not in section
+    assert "Asistan: Previous answer" in section
+
+
 def test_build_role_guidance_matches_turkish_project_manager_role():
     guidance = RagPipeline.build_role_guidance("Proje Yoneticisi")
 
@@ -313,7 +347,7 @@ def test_answer_query_passes_user_profile_to_prompt(monkeypatch):
 
     monkeypatch.setattr(pipeline, "search", lambda question, top_k=5: search_results)
 
-    def fake_build_rag_prompt(question, results, profile=None):
+    def fake_build_rag_prompt(question, results, profile=None, history=None):
         seen["profile"] = profile
         return "prompt"
 
@@ -327,6 +361,38 @@ def test_answer_query_passes_user_profile_to_prompt(monkeypatch):
     answer, citations = pipeline.answer_query("Question?", user_profile=user_profile)
 
     assert seen["profile"] == user_profile
+    assert answer == "Answer [Kaynak 1]"
+    assert citations == ["Kaynak 1: policy.md"]
+
+
+def test_answer_query_passes_chat_history_to_prompt(monkeypatch):
+    pipeline = object.__new__(RagPipeline)
+    pipeline.llm_provider = "ollama"
+    pipeline.ollama_base_url = "http://localhost:11434"
+    pipeline.ollama_model = "qwen3.5:9b"
+    pipeline.openrouter_api_key = None
+    pipeline.openrouter_model = None
+    pipeline.openrouter_fallback_model = "openrouter/free"
+    chat_history = [{"role": "user", "content": "Previous question"}]
+    seen = {}
+    search_results = [{"file_name": "policy.md", "text": "Policy text."}]
+
+    monkeypatch.setattr(pipeline, "search", lambda question, top_k=5: search_results)
+
+    def fake_build_rag_prompt(question, results, profile=None, history=None):
+        seen["history"] = history
+        return "prompt"
+
+    monkeypatch.setattr(pipeline, "build_rag_prompt", fake_build_rag_prompt)
+    monkeypatch.setattr(
+        rag_pipeline,
+        "query_llm",
+        lambda **kwargs: "Answer [Kaynak 1]",
+    )
+
+    answer, citations = pipeline.answer_query("Question?", chat_history=chat_history)
+
+    assert seen["history"] == chat_history
     assert answer == "Answer [Kaynak 1]"
     assert citations == ["Kaynak 1: policy.md"]
 

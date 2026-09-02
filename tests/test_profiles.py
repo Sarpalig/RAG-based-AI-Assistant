@@ -159,6 +159,41 @@ def test_authenticate_profile_requires_matching_name_and_password():
     assert app.authenticate_profile("Unknown User", "correct-pass", profiles) is None
 
 
+def test_recent_chat_history_keeps_last_user_turns_with_assistant_replies():
+    messages = [
+        {"role": "user", "content": "Question 1"},
+        {"role": "assistant", "content": "Answer 1"},
+        {"role": "user", "content": "Question 2"},
+        {"role": "assistant", "content": "Answer 2"},
+        {"role": "user", "content": "Question 3"},
+        {"role": "assistant", "content": "Answer 3"},
+    ]
+
+    history = app.recent_chat_history(messages, max_user_turns=2)
+
+    assert history == [
+        {"role": "user", "content": "Question 2"},
+        {"role": "assistant", "content": "Answer 2"},
+        {"role": "user", "content": "Question 3"},
+        {"role": "assistant", "content": "Answer 3"},
+    ]
+
+
+def test_recent_chat_history_ignores_empty_and_unknown_messages():
+    messages = [
+        {"role": "system", "content": "Hidden"},
+        {"role": "user", "content": "   "},
+        {"role": "assistant", "content": "Useful answer"},
+        {"role": "user", "content": "Useful question"},
+    ]
+
+    history = app.recent_chat_history(messages, max_user_turns=1)
+
+    assert history == [
+        {"role": "user", "content": "Useful question"},
+    ]
+
+
 def test_normal_profiles_require_matching_password_to_activate():
     profile = app.normalize_profile(
         {

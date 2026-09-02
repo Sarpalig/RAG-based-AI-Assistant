@@ -20,6 +20,7 @@ DEFAULT_COLLECTION_NAME = "rag_documents"
 PROFILE_STORE_PATH = Path(__file__).resolve().parent / "data" / "user_profiles.json"
 OLLAMA_MODEL_OPTIONS = ["qwen3.5:9b", "gemma4:e4b"]
 PAGE_OPTIONS = ["Sohbet", "Profil", "Belgeler"]
+CHAT_MEMORY_USER_TURNS = 5
 NAVIGATION_ITEMS = [
     {"page": "Sohbet", "label": "Sohbet", "icon": "+"},
     {"page": "Profil", "label": "Profil", "icon": "☰"},
@@ -499,14 +500,40 @@ def delete_indexed_document(document_hash):
         st.error(f"{file_name} silinirken hata oluştu: {exc}")
 
 
+def recent_chat_history(messages, max_user_turns=CHAT_MEMORY_USER_TURNS):
+    if max_user_turns <= 0:
+        return []
+
+    selected_messages = []
+    user_turns = 0
+    for message in reversed(messages):
+        role = message.get("role")
+        content = str(message.get("content", "")).strip()
+        if role not in {"user", "assistant"} or not content:
+            continue
+
+        selected_messages.append({"role": role, "content": content})
+        if role == "user":
+            user_turns += 1
+            if user_turns >= max_user_turns:
+                break
+
+    return list(reversed(selected_messages))
+
+
 def answer_question(query, ollama_model=None):
     if not query.strip():
         raise ValueError("Lütfen önce bir soru yazın.")
 
     try:
         rag = load_pipeline(ollama_model=ollama_model)
+        chat_history = recent_chat_history(st.session_state.get("messages", []))
         with st.spinner("Yanıt hazırlanıyor..."):
-            return rag.answer_query(query, user_profile=current_user_profile())
+            return rag.answer_query(
+                query,
+                user_profile=current_user_profile(),
+                chat_history=chat_history,
+            )
     except LLMError as exc:
         raise LLMError(f"LLM hatası: {exc}") from exc
     except Exception as exc:
@@ -945,6 +972,7 @@ def render_profile_summary(profile):
     with actions[1]:
         if st.button("Çıkış yap", use_container_width=True):
             set_active_profile(None)
+            st.session_state.messages = []
             st.session_state.editing_profile_id = None
             st.session_state.profile_form_open = False
             st.session_state.confirm_delete_profile_id = None
