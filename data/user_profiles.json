@@ -1,4 +1,53 @@
 {
-  "active_profile_id": null,
-  "profiles": []
+  "active_profile_id": "6281fc4981384529b5a901820b26e522",
+  "profiles": [
+    {
+      "id": "mock-intern",
+      "display_name": "Test Stajyer",
+      "role": "Geliştirici",
+      "seniority": "Intern",
+      "password_hash": "",
+      "is_mock": true
+    },
+    {
+      "id": "mock-junior",
+      "display_name": "Test Junior",
+      "role": "Geliştirici",
+      "seniority": "Junior",
+      "password_hash": "",
+      "is_mock": true
+    },
+    {
+      "id": "mock-mid-level",
+      "display_name": "Test Orta Seviye",
+      "role": "Geliştirici",
+      "seniority": "Mid-level",
+      "password_hash": "",
+      "is_mock": true
+    },
+    {
+      "id": "mock-senior",
+      "display_name": "Test Senior",
+      "role": "Geliştirici",
+      "seniority": "Senior",
+      "password_hash": "",
+      "is_mock": true
+    },
+    {
+      "id": "mock-project-manager",
+      "display_name": "Test Proje Yöneticisi",
+      "role": "Proje Yöneticisi",
+      "seniority": "Senior",
+      "password_hash": "",
+      "is_mock": true
+    },
+    {
+      "id": "6281fc4981384529b5a901820b26e522",
+      "display_name": "Lionel Messi",
+      "role": "",
+      "seniority": "Senior",
+      "password_hash": "pbkdf2_sha256$120000$7c0b60dc535c562cb3d972b8d088c03c$f11f76fd2a5950c66b90d132912687b9ac6be00a926470eefa31eb59994c7a59",
+      "is_mock": false
+    }
+  ]
 }

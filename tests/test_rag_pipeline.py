@@ -200,6 +200,49 @@ def test_build_rag_prompt_includes_seniority_guidance_when_profile_is_active():
     assert "Complete the first checklist item." in prompt
 
 
+def test_build_rag_prompt_includes_project_manager_role_guidance():
+    pipeline = object.__new__(RagPipeline)
+
+    prompt = pipeline.build_rag_prompt(
+        "What should we prioritize?",
+        [{"file_name": "roadmap.md", "text": "Prioritize defects blocking launch."}],
+        {"role": "Senior Project Manager", "seniority": "Senior"},
+    )
+
+    assert "The user's role is Project Manager" in prompt
+    assert "Focus on product quality" in prompt
+    assert "Avoid low-level implementation details" in prompt
+    assert "The user is senior-level" in prompt
+
+
+def test_build_role_guidance_matches_turkish_project_manager_role():
+    guidance = RagPipeline.build_role_guidance("Proje Yoneticisi")
+
+    assert "The user's role is Project Manager" in guidance
+
+
+def test_build_role_guidance_matches_turkish_project_manager_role_with_diacritics():
+    guidance = RagPipeline.build_role_guidance("Proje Yöneticisi")
+
+    assert "The user's role is Project Manager" in guidance
+
+
+def test_build_role_guidance_ignores_non_project_manager_role():
+    guidance = RagPipeline.build_role_guidance("Backend Developer")
+
+    assert guidance == ""
+
+
+def test_build_audience_guidance_combines_project_manager_role_and_seniority():
+    guidance = RagPipeline.build_audience_guidance(
+        {"role": "Project Manager", "seniority": "Mid-level"}
+    )
+
+    assert "Focus on product quality" in guidance
+    assert "Avoid low-level implementation details" in guidance
+    assert "The user is mid-level" in guidance
+
+
 def test_build_audience_guidance_ignores_missing_or_unknown_profile():
     assert RagPipeline.build_audience_guidance(None) == ""
     assert RagPipeline.build_audience_guidance({"seniority": "Unknown"}) == ""
@@ -286,6 +329,39 @@ def test_answer_query_passes_user_profile_to_prompt(monkeypatch):
     assert seen["profile"] == user_profile
     assert answer == "Answer [Kaynak 1]"
     assert citations == ["Kaynak 1: policy.md"]
+
+
+def test_answer_query_adds_project_manager_guidance_to_prompt(monkeypatch):
+    pipeline = object.__new__(RagPipeline)
+    pipeline.llm_provider = "ollama"
+    pipeline.ollama_base_url = "http://localhost:11434"
+    pipeline.ollama_model = "qwen3.5:9b"
+    pipeline.openrouter_api_key = None
+    pipeline.openrouter_model = None
+    pipeline.openrouter_fallback_model = "openrouter/free"
+    user_profile = {"role": "Project Manager", "seniority": "Senior"}
+    search_results = [{"file_name": "quality.md", "text": "Launch defects block release."}]
+    seen = {}
+
+    monkeypatch.setattr(pipeline, "search", lambda question, top_k=5: search_results)
+
+    def fake_query_llm(**kwargs):
+        seen["prompt"] = kwargs["prompt"]
+        return "Prioritize launch-blocking defects. [Kaynak 1]"
+
+    monkeypatch.setattr(rag_pipeline, "query_llm", fake_query_llm)
+
+    answer, citations = pipeline.answer_query(
+        "What should we prioritize?",
+        user_profile=user_profile,
+    )
+
+    assert "The user's role is Project Manager" in seen["prompt"]
+    assert "Focus on product quality" in seen["prompt"]
+    assert "Avoid low-level implementation details" in seen["prompt"]
+    assert "The user is senior-level" in seen["prompt"]
+    assert answer == "Prioritize launch-blocking defects. [Kaynak 1]"
+    assert citations == ["Kaynak 1: quality.md"]
 
 
 def test_answer_query_lists_only_sources_used_in_answer(monkeypatch):

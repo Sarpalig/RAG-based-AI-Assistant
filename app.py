@@ -1,5 +1,9 @@
 import os
+import hmac
+import html
+import hashlib
 import json
+import secrets
 from pathlib import Path
 from uuid import uuid4
 
@@ -16,7 +20,19 @@ DEFAULT_COLLECTION_NAME = "rag_documents"
 PROFILE_STORE_PATH = Path(__file__).resolve().parent / "data" / "user_profiles.json"
 OLLAMA_MODEL_OPTIONS = ["qwen3.5:9b", "gemma4:e4b"]
 PAGE_OPTIONS = ["Sohbet", "Profil", "Belgeler"]
+NAVIGATION_ITEMS = [
+    {"page": "Sohbet", "label": "Sohbet", "icon": "+"},
+    {"page": "Profil", "label": "Profil", "icon": "☰"},
+    {"page": "Belgeler", "label": "Belgeler", "icon": "⌕"},
+]
 SENIORITY_OPTIONS = ["Intern", "Junior", "Mid-level", "Senior"]
+SENIORITY_LABELS = {
+    "Intern": "Stajyer",
+    "Junior": "Junior",
+    "Mid-level": "Orta seviye",
+    "Senior": "Senior",
+}
+PASSWORD_HASH_ITERATIONS = 120000
 DEFAULT_PROFILE_STORE = {
     "active_profile_id": None,
     "profiles": [],
@@ -26,6 +42,43 @@ EMPTY_PROFILE_FORM = {
     "role": "",
     "seniority": "Junior",
 }
+MOCK_PROFILES = [
+    {
+        "id": "mock-intern",
+        "display_name": "Test Stajyer",
+        "role": "Geliştirici",
+        "seniority": "Intern",
+        "is_mock": True,
+    },
+    {
+        "id": "mock-junior",
+        "display_name": "Test Junior",
+        "role": "Geliştirici",
+        "seniority": "Junior",
+        "is_mock": True,
+    },
+    {
+        "id": "mock-mid-level",
+        "display_name": "Test Orta Seviye",
+        "role": "Geliştirici",
+        "seniority": "Mid-level",
+        "is_mock": True,
+    },
+    {
+        "id": "mock-senior",
+        "display_name": "Test Senior",
+        "role": "Geliştirici",
+        "seniority": "Senior",
+        "is_mock": True,
+    },
+    {
+        "id": "mock-project-manager",
+        "display_name": "Test Proje Yöneticisi",
+        "role": "Proje Yöneticisi",
+        "seniority": "Senior",
+        "is_mock": True,
+    },
+]
 
 
 @st.cache_resource
@@ -49,29 +102,84 @@ def selected_page():
     return st.session_state.get("selected_page", "Sohbet")
 
 
+def hash_password(password):
+    salt = secrets.token_hex(16)
+    digest = hashlib.pbkdf2_hmac(
+        "sha256",
+        password.encode("utf-8"),
+        salt.encode("utf-8"),
+        PASSWORD_HASH_ITERATIONS,
+    ).hex()
+    return f"pbkdf2_sha256${PASSWORD_HASH_ITERATIONS}${salt}${digest}"
+
+
+def verify_password(password, password_hash):
+    if not password or not password_hash:
+        return False
+
+    try:
+        algorithm, iterations, salt, expected_digest = password_hash.split("$", 3)
+        iterations = int(iterations)
+    except (AttributeError, TypeError, ValueError):
+        return False
+
+    if algorithm != "pbkdf2_sha256":
+        return False
+
+    actual_digest = hashlib.pbkdf2_hmac(
+        "sha256",
+        password.encode("utf-8"),
+        salt.encode("utf-8"),
+        iterations,
+    ).hex()
+    return hmac.compare_digest(actual_digest, expected_digest)
+
+
+def is_mock_profile(profile):
+    if not profile:
+        return False
+    return bool(profile.get("is_mock"))
+
+
+def requires_password(profile):
+    return not is_mock_profile(profile)
+
+
 def normalize_profile(profile):
     seniority = profile.get("seniority", EMPTY_PROFILE_FORM["seniority"])
     if seniority not in SENIORITY_OPTIONS:
         seniority = EMPTY_PROFILE_FORM["seniority"]
 
     profile_id = profile.get("id") or uuid4().hex
+    is_mock = bool(profile.get("is_mock", False))
     return {
         "id": str(profile_id),
         "display_name": str(profile.get("display_name", "")).strip(),
         "role": str(profile.get("role", "")).strip(),
         "seniority": seniority,
+        "password_hash": "" if is_mock else str(profile.get("password_hash", "")),
+        "is_mock": is_mock,
     }
+
+
+def merge_mock_profiles(profiles):
+    profiles_by_id = {profile["id"]: profile for profile in profiles}
+    for mock_profile in MOCK_PROFILES:
+        if mock_profile["id"] not in profiles_by_id:
+            profiles_by_id[mock_profile["id"]] = normalize_profile(mock_profile)
+    return list(profiles_by_id.values())
 
 
 def normalize_profile_store(store):
     if not isinstance(store, dict):
-        return DEFAULT_PROFILE_STORE.copy()
+        store = DEFAULT_PROFILE_STORE.copy()
 
     profiles = [
         normalize_profile(profile)
         for profile in store.get("profiles", [])
         if isinstance(profile, dict)
     ]
+    profiles = merge_mock_profiles(profiles)
     profile_ids = {profile["id"] for profile in profiles}
     active_profile_id = store.get("active_profile_id")
     if active_profile_id not in profile_ids:
@@ -118,7 +226,10 @@ def find_profile(profile_id):
 
 def active_user_profile():
     store = st.session_state.get("profile_store", DEFAULT_PROFILE_STORE)
-    return find_profile(store.get("active_profile_id"))
+    profile = find_profile(store.get("active_profile_id"))
+    if is_mock_profile(profile) or (profile and not profile.get("password_hash")):
+        return None
+    return profile
 
 
 def current_user_profile():
@@ -134,12 +245,62 @@ def current_user_profile():
 
 
 def profile_label(profile):
-    name = profile.get("display_name") or "Isimsiz profil"
+    name = profile.get("display_name") or "İsimsiz profil"
     role = profile.get("role")
-    seniority = profile.get("seniority", "Genel")
+    seniority = seniority_label(profile.get("seniority", "Genel"))
     if role:
         return f"{name} - {role} ({seniority})"
     return f"{name} ({seniority})"
+
+
+def seniority_label(seniority):
+    return SENIORITY_LABELS.get(seniority, seniority)
+
+
+def profile_initials(display_name):
+    name_parts = [part for part in str(display_name).strip().split() if part]
+    if not name_parts:
+        return "P"
+    initials = "".join(part[0] for part in name_parts[:2])
+    return initials.upper()
+
+
+def can_activate_profile(profile, password=None):
+    if not profile:
+        return False
+    if is_mock_profile(profile):
+        return True
+    return verify_password(password or "", profile.get("password_hash", ""))
+
+
+def visible_profiles(profiles):
+    return [
+        profile
+        for profile in profiles
+        if not is_mock_profile(profile) and profile.get("password_hash")
+    ]
+
+
+def primary_user_profile():
+    active_profile = active_user_profile()
+    if active_profile:
+        return active_profile
+
+    store = st.session_state.get("profile_store", DEFAULT_PROFILE_STORE.copy())
+    profiles = visible_profiles(store.get("profiles", []))
+    if profiles:
+        return profiles[0]
+    return None
+
+
+def set_active_profile(profile_id):
+    store = st.session_state.get("profile_store", DEFAULT_PROFILE_STORE.copy())
+    save_profile_store(
+        {
+            "active_profile_id": profile_id,
+            "profiles": store.get("profiles", []),
+        }
+    )
 
 
 def load_pipeline(show_status=False, ollama_model=None):
@@ -152,13 +313,13 @@ def load_pipeline(show_status=False, ollama_model=None):
             pipeline = get_pipeline(model)
         return pipeline
 
-    with st.status("RAG pipeline hazirlaniyor...", expanded=False) as status:
-        status.write("Embedding modeli ve vector store yukleniyor.")
+    with st.status("RAG işlem hattı hazırlanıyor...", expanded=False) as status:
+        status.write("Gömme modeli ve vektör veritabanı yükleniyor.")
         pipeline = get_pipeline(model)
         if not hasattr(pipeline, "list_indexed_documents"):
             get_pipeline.clear()
             pipeline = get_pipeline(model)
-        status.update(label="RAG pipeline hazir.", state="complete")
+        status.update(label="RAG işlem hattı hazır.", state="complete")
 
     return pipeline
 
@@ -182,6 +343,8 @@ def initialize_session_state():
         st.session_state.profile_store = load_profile_store()
     if "editing_profile_id" not in st.session_state:
         st.session_state.editing_profile_id = None
+    if "profile_form_open" not in st.session_state:
+        st.session_state.profile_form_open = False
 
 
 def load_indexed_documents_on_startup():
@@ -201,7 +364,7 @@ def load_indexed_documents_on_startup():
         st.session_state.indexed_documents_loaded = True
     except Exception as exc:
         st.session_state.indexed_documents_loaded = True
-        st.warning(f"Yuklu belge listesi okunamadi: {exc}")
+        st.warning(f"Yüklü belge listesi okunamadı: {exc}")
 
 
 def remember_index_result(result):
@@ -226,55 +389,55 @@ def refresh_indexed_documents(rag):
 
 def document_status_label(document):
     if document["skipped"]:
-        return "Zaten yuklu"
+        return "Zaten yüklü"
     if document["chunk_count"] > 0:
-        return "Hazir"
-    return "Metin bulunamadi"
+        return "Hazır"
+    return "Metin bulunamadı"
 
 
 def show_indexed_documents():
     if not st.session_state.indexed_documents:
-        st.caption("Henuz yuklenen belge yok.")
+        st.caption("Henüz yüklenen belge yok.")
         return
 
     for document in st.session_state.indexed_documents.values():
         status = document_status_label(document)
         st.markdown(f"**{document['file_name']}**")
-        st.caption(f"{status} - {document['chunk_count']} parca")
+        st.caption(f"{status} - {document['chunk_count']} parça")
 
 
 def index_uploaded_files(uploaded_files):
     if not uploaded_files:
-        st.warning("Once en az bir belge yukleyin.")
+        st.warning("Lütfen önce en az bir belge yükleyin.")
         return
 
     try:
         rag = load_pipeline(show_status=True)
     except Exception as exc:
-        st.error(f"Pipeline baslatilirken hata olustu: {exc}")
+        st.error(f"İşlem hattı başlatılırken hata oluştu: {exc}")
         return
 
-    with st.spinner("Belgeler hazirlaniyor..."):
+    with st.spinner("Belgeler hazırlanıyor..."):
         for uploaded_file in uploaded_files:
             try:
                 result = rag.index_file(uploaded_file, uploaded_file.name)
                 remember_index_result(result)
 
                 if result["skipped"]:
-                    st.info(f"{result['file_name']} zaten yuklu.")
+                    st.info(f"{result['file_name']} zaten yüklü.")
                 elif result["chunk_count"] > 0:
                     st.success(
-                        f"{result['file_name']} hazirlandi "
-                        f"({result['chunk_count']} parca)."
+                        f"{result['file_name']} hazırlandı "
+                        f"({result['chunk_count']} parça)."
                     )
                 else:
                     st.warning(
-                        f"{result['file_name']} icinde okunabilir metin bulunamadi."
+                        f"{result['file_name']} içinde okunabilir metin bulunamadı."
                     )
             except DocumentLoaderError as exc:
                 st.error(f"{uploaded_file.name}: {exc}")
             except Exception as exc:
-                st.error(f"{uploaded_file.name}: Belge hazirlanirken hata olustu: {exc}")
+                st.error(f"{uploaded_file.name}: Belge hazırlanırken hata oluştu: {exc}")
 
     refresh_indexed_documents(rag)
 
@@ -283,9 +446,9 @@ def refresh_document_list():
     try:
         rag = load_pipeline(show_status=True)
         refresh_indexed_documents(rag)
-        st.success("Yuklenen belge listesi yenilendi.")
+        st.success("Yüklenen belge listesi yenilendi.")
     except Exception as exc:
-        st.error(f"Belge listesi yenilenirken hata olustu: {exc}")
+        st.error(f"Belge listesi yenilenirken hata oluştu: {exc}")
 
 
 def delete_indexed_document(document_hash):
@@ -298,24 +461,24 @@ def delete_indexed_document(document_hash):
         refresh_indexed_documents(rag)
         st.session_state.document_notice = {
             "type": "success",
-            "message": f"{file_name} indeksten kaldirildi.",
+            "message": f"{file_name} indeksten kaldırıldı.",
         }
     except Exception as exc:
-        st.error(f"{file_name} silinirken hata olustu: {exc}")
+        st.error(f"{file_name} silinirken hata oluştu: {exc}")
 
 
 def answer_question(query, ollama_model=None):
     if not query.strip():
-        raise ValueError("Once bir soru yazin.")
+        raise ValueError("Lütfen önce bir soru yazın.")
 
     try:
         rag = load_pipeline(ollama_model=ollama_model)
-        with st.spinner("Yaziyor..."):
+        with st.spinner("Yanıt hazırlanıyor..."):
             return rag.answer_query(query, user_profile=current_user_profile())
     except LLMError as exc:
-        raise LLMError(f"LLM hatasi: {exc}") from exc
+        raise LLMError(f"LLM hatası: {exc}") from exc
     except Exception as exc:
-        raise RuntimeError(f"Soru cevaplanirken hata olustu: {exc}") from exc
+        raise RuntimeError(f"Soru yanıtlanırken hata oluştu: {exc}") from exc
 
 
 def render_citations(citations, expanded=False):
@@ -324,7 +487,7 @@ def render_citations(citations, expanded=False):
             for citation in citations:
                 st.write(f"- {citation}")
     else:
-        st.info("Bu cevap icin gosterilecek kaynak bulunamadi.")
+        st.info("Bu yanıt için gösterilecek kaynak bulunamadı.")
 
 
 def render_message(message):
@@ -338,8 +501,8 @@ def render_message(message):
 def render_chat():
     if not st.session_state.messages:
         st.info(
-            "Belgeler hazirsa asagidan soru sorabilirsin. "
-            "Cevaplar sadece indekslenen dokuman parcalarina dayanir."
+            "Belgeler hazır olduğunda aşağıdaki alandan soru sorabilirsiniz. "
+            "Yanıtlar yalnızca indekslenen doküman parçalarına dayanır."
         )
 
     for message in st.session_state.messages:
@@ -367,10 +530,10 @@ def render_chat_settings():
         active_profile = active_user_profile()
         if active_profile:
             st.markdown(f"**Aktif profil:** {profile_label(active_profile)}")
-            st.caption("Cevap anlatimi bu profile gore uyarlanir.")
+            st.caption("Yanıt anlatımı aktif profile göre uyarlanır.")
         else:
             st.markdown("**Aktif profil:** Yok")
-            st.caption("Cevaplar genel seviyede uretilir.")
+            st.caption("Yanıtlar genel seviyede üretilir.")
 
     with settings[2]:
         st.write("")
@@ -381,24 +544,66 @@ def render_chat_settings():
 
 def render_sidebar():
     with st.sidebar:
-        st.radio(
-            "Ekran",
-            options=PAGE_OPTIONS,
-            key="selected_page",
+        st.markdown(
+            """
+            <style>
+            [data-testid="stSidebar"] {
+                background-color: #20211f;
+            }
+            [data-testid="stSidebar"] div.stButton > button {
+                width: 100%;
+                justify-content: flex-start;
+                border: 0;
+                border-radius: 8px;
+                padding: 0.82rem 0.85rem;
+                background: transparent;
+                color: #f4f4f2;
+                font-size: 1.14rem;
+                font-weight: 600;
+            }
+            [data-testid="stSidebar"] div.stButton > button:hover {
+                background: #2a2a27;
+                color: #ffffff;
+            }
+            [data-testid="stSidebar"] div.stButton > button[kind="primary"] {
+                background: #2b2926;
+                color: #ffffff;
+            }
+            [data-testid="stSidebar"] div.stButton > button[kind="primary"]:hover {
+                background: #302e2b;
+                color: #ffffff;
+            }
+            [data-testid="stSidebar"] div.stButton > button:focus {
+                box-shadow: none;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True,
         )
+
+        for item in NAVIGATION_ITEMS:
+            is_active = selected_page() == item["page"]
+            if st.button(
+                f"{item['icon']}  {item['label']}",
+                key=f"nav_{item['page']}",
+                type="primary" if is_active else "secondary",
+                use_container_width=True,
+            ):
+                st.session_state.selected_page = item["page"]
+                st.rerun()
 
 
 def render_document_upload():
     st.subheader("Belge ekle")
     uploaded_files = st.file_uploader(
-        "PDF, DOCX veya Markdown dosyasi sec",
+        "PDF, DOCX veya Markdown dosyası seçin",
         type=["pdf", "docx", "md"],
         accept_multiple_files=True,
     )
 
     actions = st.columns([1, 1, 4])
     with actions[0]:
-        if st.button("Belgeleri hazirla", type="primary", use_container_width=True):
+        if st.button("Belgeleri hazırla", type="primary", use_container_width=True):
             index_uploaded_files(uploaded_files)
     with actions[1]:
         if st.button("Listeyi yenile", use_container_width=True):
@@ -406,17 +611,17 @@ def render_document_upload():
 
 
 def render_document_list():
-    st.subheader("Indekslenen belgeler")
+    st.subheader("İndekslenen belgeler")
 
     if not st.session_state.indexed_documents:
-        st.info("Henuz indekslenen belge yok.")
+        st.info("Henüz indekslenen belge yok.")
         return
 
     header = st.columns([4, 1, 1, 1])
     header[0].markdown("**Dosya**")
-    header[1].markdown("**Tur**")
-    header[2].markdown("**Parca**")
-    header[3].markdown("**Islem**")
+    header[1].markdown("**Tür**")
+    header[2].markdown("**Parça**")
+    header[3].markdown("**İşlem**")
 
     for document_hash, document in st.session_state.indexed_documents.items():
         row = st.columns([4, 1, 1, 1])
@@ -434,7 +639,7 @@ def render_document_list():
 
 def render_documents_page():
     st.title("Belgeler")
-    st.caption("RAG indeksine belge ekle, mevcut belgeleri gor ve gerekmeyenleri kaldir.")
+    st.caption("RAG indeksine belge ekleyin, mevcut belgeleri görüntüleyin ve gerekmeyenleri kaldırın.")
     notice = st.session_state.get("document_notice")
     if notice:
         if notice["type"] == "success":
@@ -447,15 +652,33 @@ def render_documents_page():
     render_document_list()
 
 
-def save_profile(display_name, role, seniority, profile_id=None):
+def save_profile(display_name, role, seniority, password="", profile_id=None):
     store = st.session_state.get("profile_store", DEFAULT_PROFILE_STORE.copy())
     profiles = store.get("profiles", [])
+    existing_profile = find_profile(profile_id)
+
+    if existing_profile and is_mock_profile(existing_profile):
+        raise ValueError("Bu profil düzenlenemez.")
+
+    if not str(display_name).strip():
+        raise ValueError("Profil için ad soyad bilgisi zorunludur.")
+
+    existing_password_hash = ""
+    if existing_profile:
+        existing_password_hash = existing_profile.get("password_hash", "")
+
+    if not password and not existing_password_hash:
+        raise ValueError("Profil oluşturmak için şifre belirlenmesi zorunludur.")
+
+    password_hash = hash_password(password) if password else existing_password_hash
     normalized_profile = normalize_profile(
         {
             "id": profile_id or uuid4().hex,
             "display_name": display_name,
             "role": role,
             "seniority": seniority,
+            "password_hash": password_hash,
+            "is_mock": False,
         }
     )
 
@@ -480,18 +703,28 @@ def save_profile(display_name, role, seniority, profile_id=None):
     return normalized_profile
 
 
-def activate_profile(profile_id):
+def activate_profile(profile_id, password=None):
     store = st.session_state.get("profile_store", DEFAULT_PROFILE_STORE.copy())
+    if profile_id is not None:
+        profile = find_profile(profile_id)
+        if not can_activate_profile(profile, password):
+            return False
+
     save_profile_store(
         {
             "active_profile_id": profile_id,
             "profiles": store.get("profiles", []),
         }
     )
+    return True
 
 
 def delete_profile(profile_id):
     store = st.session_state.get("profile_store", DEFAULT_PROFILE_STORE.copy())
+    profile = find_profile(profile_id)
+    if profile and is_mock_profile(profile):
+        raise ValueError("Bu profil silinemez.")
+
     profiles = [
         profile
         for profile in store.get("profiles", [])
@@ -510,9 +743,9 @@ def delete_profile(profile_id):
 
 
 def render_profile_page():
-    st.title("Profil Yonetimi")
+    st.title("Profilim")
     st.caption(
-        "Giris zorunlu degil. Profiller lokal JSON dosyasinda tutulur; chatbot aktif profili kullanir."
+        "Profil bilgilerinizi yönetin ve yanıtların ihtiyaçlarınıza uygun şekilde hazırlanmasını sağlayın."
     )
 
     notice = st.session_state.get("profile_notice")
@@ -523,72 +756,181 @@ def render_profile_page():
             st.info(notice["message"])
         st.session_state.profile_notice = None
 
-    store = st.session_state.get("profile_store", DEFAULT_PROFILE_STORE.copy())
-    profiles = store.get("profiles", [])
-    active_profile = active_user_profile()
+    profile = primary_user_profile()
+    if profile and st.session_state.get("profile_store", {}).get("active_profile_id") != profile["id"]:
+        set_active_profile(profile["id"])
 
-    if active_profile:
-        st.success(f"Aktif profil: {profile_label(active_profile)}")
+    if profile:
+        render_profile_summary(profile)
     else:
-        st.info("Aktif profil yok. Sohbet cevaplari genel seviyede uretilir.")
+        st.info("Henüz bir profil oluşturulmadı.")
+        st.session_state.profile_form_open = True
 
-    if profiles:
-        profile_options = [
-            (f"{index}. {profile_label(profile)}", profile["id"])
-            for index, profile in enumerate(profiles, start=1)
-        ]
-        active_index = 0
-        if active_profile:
-            active_profile_ids = [profile_id for _, profile_id in profile_options]
-            active_index = active_profile_ids.index(active_profile["id"])
+    if st.session_state.profile_form_open:
+        st.divider()
+        render_profile_form(profile)
 
-        selected_label = st.selectbox(
-            "Profil sec",
-            options=[label for label, _ in profile_options],
-            index=active_index,
-        )
-        selected_profile_id = dict(profile_options)[selected_label]
+    st.divider()
+    st.subheader("Yanıt uyarlaması")
+    st.write(
+        "Stajyer: temel kavramlar ve adımlar daha açıklayıcı şekilde sunulur. "
+        "Junior: uygulamaya dönük adımlar ve kritik terimler öne çıkarılır. "
+        "Orta seviye: dengeli düzeyde teknik ayrıntı verilir. "
+        "Senior: daha kısa, risk ve karar noktalarına odaklanan yanıtlar üretilir. "
+        "Proje Yöneticisi rolünde yanıtlar teknik ayrıntılar yerine ürün kalitesi, "
+        "kabul kriterleri, riskler, kapsam ve karar noktalarına odaklanır."
+    )
 
-        profile_actions = st.columns([1, 1, 1, 3])
-        with profile_actions[0]:
-            if st.button("Aktif yap", type="primary", use_container_width=True):
-                activate_profile(selected_profile_id)
-                st.session_state.profile_notice = {
-                    "type": "success",
-                    "message": "Aktif profil guncellendi.",
-                }
-                st.rerun()
-        with profile_actions[1]:
-            if st.button("Duzenle", use_container_width=True):
-                st.session_state.editing_profile_id = selected_profile_id
-                st.rerun()
-        with profile_actions[2]:
-            if st.button("Profili sil", use_container_width=True):
-                delete_profile(selected_profile_id)
-                if st.session_state.editing_profile_id == selected_profile_id:
-                    st.session_state.editing_profile_id = None
+
+def render_profile_summary(profile):
+    display_name = html.escape(profile.get("display_name") or "İsimsiz profil")
+    role = html.escape(profile.get("role") or "Rol belirtilmedi")
+    seniority = html.escape(seniority_label(profile.get("seniority", "Genel")))
+    initials = html.escape(profile_initials(profile.get("display_name", "")))
+
+    st.markdown(
+        f"""
+        <style>
+        .profile-card {{
+            max-width: 760px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            overflow: hidden;
+            background: #171a1f;
+            color: #f4f4f2;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.32);
+            margin: 1.25rem 0 1rem;
+        }}
+        .profile-card__cover {{
+            height: 130px;
+            background:
+                linear-gradient(135deg, rgba(35, 38, 42, 0.98), rgba(11, 62, 59, 0.94)),
+                radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.10), transparent 34%);
+        }}
+        .profile-card__body {{
+            display: flex;
+            gap: 1.4rem;
+            padding: 0 2rem 2rem;
+        }}
+        .profile-card__avatar {{
+            width: 104px;
+            height: 104px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            margin-top: -52px;
+            border: 5px solid #171a1f;
+            border-radius: 16px;
+            background: #2f3a40;
+            color: #f4f4f2;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 0;
+        }}
+        .profile-card__content {{
+            min-width: 0;
+            padding-top: 1.25rem;
+        }}
+        .profile-card__name {{
+            font-size: 1.65rem;
+            line-height: 1.2;
+            font-weight: 800;
+            margin-bottom: 0.35rem;
+        }}
+        .profile-card__role {{
+            color: #b7bfbd;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }}
+        .profile-card__meta {{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }}
+        .profile-card__meta span {{
+            display: inline-flex;
+            align-items: center;
+            min-height: 2rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            background: #24282d;
+            color: #e8ecea;
+            font-weight: 650;
+        }}
+        @media (max-width: 640px) {{
+            .profile-card__body {{
+                display: block;
+                padding: 0 1.25rem 1.5rem;
+            }}
+            .profile-card__avatar {{
+                width: 88px;
+                height: 88px;
+                margin-top: -44px;
+                font-size: 1.55rem;
+            }}
+            .profile-card__name {{
+                font-size: 1.35rem;
+            }}
+        }}
+        </style>
+        <div class="profile-card">
+            <div class="profile-card__cover"></div>
+            <div class="profile-card__body">
+                <div class="profile-card__avatar">{initials}</div>
+                <div class="profile-card__content">
+                    <div class="profile-card__name">{display_name}</div>
+                    <div class="profile-card__role">{role}</div>
+                    <div class="profile-card__meta">
+                        <span>Kıdem: {seniority}</span>
+                        <span>Durum: Aktif</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    actions = st.columns([1, 1, 4])
+    with actions[0]:
+        if st.button("Profili güncelle", type="primary", use_container_width=True):
+            st.session_state.editing_profile_id = profile["id"]
+            st.session_state.profile_form_open = True
+            st.rerun()
+    with actions[1]:
+        if st.button("Profili sil", use_container_width=True):
+            try:
+                delete_profile(profile["id"])
+                st.session_state.editing_profile_id = None
+                st.session_state.profile_form_open = True
                 st.session_state.profile_notice = {
                     "type": "info",
                     "message": "Profil silindi.",
                 }
-                st.rerun()
+            except ValueError as exc:
+                st.session_state.profile_notice = {
+                    "type": "info",
+                    "message": str(exc),
+                }
+            st.rerun()
 
-    if st.button("Yeni profil olustur"):
-        st.session_state.editing_profile_id = None
-        st.rerun()
 
-    st.divider()
-    st.subheader("Profil olustur / guncelle")
-
+def render_profile_form(profile):
     editing_profile = find_profile(st.session_state.editing_profile_id)
     if not editing_profile:
-        editing_profile = EMPTY_PROFILE_FORM
+        editing_profile = profile or EMPTY_PROFILE_FORM
+
+    update_existing_profile = bool(profile and editing_profile.get("id") == profile["id"])
     seniority_index = (
         SENIORITY_OPTIONS.index(editing_profile["seniority"])
         if editing_profile.get("seniority") in SENIORITY_OPTIONS
         else SENIORITY_OPTIONS.index(EMPTY_PROFILE_FORM["seniority"])
     )
 
+    st.subheader("Profil bilgileri")
     with st.form("profile_form"):
         display_name = st.text_input(
             "Ad soyad",
@@ -596,63 +938,77 @@ def render_profile_page():
             max_chars=80,
         )
         role = st.text_input(
-            "Rol / ekip (opsiyonel)",
+            "Rol / ekip",
             value=editing_profile.get("role", ""),
             max_chars=80,
         )
         seniority = st.selectbox(
-            "Kidem seviyesi",
+            "Kıdem seviyesi",
             options=SENIORITY_OPTIONS,
             index=seniority_index,
+            format_func=seniority_label,
         )
-        update_existing_profile = bool(find_profile(st.session_state.editing_profile_id))
+        password_label = (
+            "Yeni şifrenizi girin"
+            if update_existing_profile
+            else "Şifrenizi belirleyin"
+        )
+        password = st.text_input(
+            password_label,
+            type="password",
+            max_chars=120,
+        )
 
-        submitted = st.form_submit_button(
-            "Profili guncelle" if update_existing_profile else "Profil olustur",
-            type="primary",
-        )
+        form_actions = st.columns([1, 1, 4])
+        with form_actions[0]:
+            submitted = st.form_submit_button(
+                "Kaydet" if update_existing_profile else "Profil oluştur",
+                type="primary",
+                use_container_width=True,
+            )
+        with form_actions[1]:
+            cancelled = st.form_submit_button(
+                "Vazgeç",
+                use_container_width=True,
+            )
+
+    if cancelled:
+        st.session_state.profile_form_open = False
+        st.session_state.editing_profile_id = None
+        st.rerun()
 
     if submitted:
-        profile = save_profile(
-            display_name=display_name,
-            role=role,
-            seniority=seniority,
-            profile_id=editing_profile["id"] if update_existing_profile else None,
-        )
-        st.session_state.editing_profile_id = profile["id"]
-        st.session_state.profile_notice = {
-            "type": "success",
-            "message": f"{profile_label(profile)} kaydedildi ve aktif yapildi.",
-        }
+        try:
+            saved_profile = save_profile(
+                display_name=display_name,
+                role=role,
+                seniority=seniority,
+                password=password,
+                profile_id=editing_profile.get("id") if update_existing_profile else None,
+            )
+            st.session_state.editing_profile_id = None
+            st.session_state.profile_form_open = False
+            st.session_state.profile_notice = {
+                "type": "success",
+                "message": f"{profile_label(saved_profile)} başarıyla kaydedildi.",
+            }
+        except ValueError as exc:
+            st.session_state.profile_notice = {
+                "type": "info",
+                "message": str(exc),
+            }
         st.rerun()
-
-    if st.button("Aktif profili kapat"):
-        activate_profile(None)
-        st.session_state.profile_notice = {
-            "type": "info",
-            "message": "Aktif profil kapatildi. Sohbet genel seviyede devam edecek.",
-        }
-        st.rerun()
-
-    st.divider()
-    st.subheader("Cevap uyarlamasi")
-    st.write(
-        "Intern: temel kavramlar ve adimlar daha acik anlatilir. "
-        "Junior: uygulamaya donuk adimlar ve kritik terimler one cikar. "
-        "Mid-level: dengeli teknik detay verilir. "
-        "Senior: daha kisa, risk ve karar noktalarina odakli cevap uretilir."
-    )
 
 
 def render_chat_page():
-    st.title("Kurumsal Dokuman Asistani")
-    st.caption("Kaynakli cevap ureten RAG tabanli dokuman sohbeti.")
+    st.title("Kurumsal Doküman Asistanı")
+    st.caption("Kaynaklı yanıt üreten RAG tabanlı doküman sohbeti.")
     render_chat_settings()
     st.divider()
 
     render_chat()
 
-    query = st.chat_input("Dokumanlar hakkinda soru sor")
+    query = st.chat_input("Dokümanlar hakkında soru sorun")
     if query:
         st.session_state.messages.append({"role": "user", "content": query})
         with st.chat_message("user"):
@@ -681,7 +1037,7 @@ def render_assistant_response(query):
 
 
 def main():
-    st.set_page_config(page_title="Kurumsal Dokuman Asistani", layout="wide")
+    st.set_page_config(page_title="Kurumsal Doküman Asistanı", layout="wide")
     initialize_session_state()
     load_indexed_documents_on_startup()
 

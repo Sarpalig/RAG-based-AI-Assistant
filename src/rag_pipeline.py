@@ -18,30 +18,12 @@ from .vector_store import (
     list_indexed_documents,
     similarity_search,
 )
+from .audience_guidance import (
+    build_audience_guidance,
+    build_role_guidance,
+)
 
 
-AUDIENCE_GUIDANCE_BY_SENIORITY = {
-    "intern": (
-        "The user is an intern. Explain the answer step by step, define important "
-        "terms briefly, and avoid assuming prior domain knowledge. Keep every claim "
-        "grounded in the retrieved context."
-    ),
-    "junior": (
-        "The user is junior-level. Use a practical, structured explanation, call out "
-        "non-obvious terms, and include concrete next steps when the context supports "
-        "them."
-    ),
-    "mid-level": (
-        "The user is mid-level. Use a balanced technical explanation, assume basic "
-        "professional familiarity, and focus on decisions, dependencies, and important "
-        "details from the context."
-    ),
-    "senior": (
-        "The user is senior-level. Be concise, emphasize constraints, risks, trade-offs, "
-        "and source-specific details, and skip basic explanations unless the question "
-        "asks for them."
-    ),
-}
 DEFAULT_CHUNK_SETTINGS = {
     "chunk_size": 300,
     "chunk_overlap": 30,
@@ -261,16 +243,11 @@ Kaynaklar:
 
     @staticmethod
     def build_audience_guidance(user_profile):
-        if not user_profile:
-            return ""
+        return build_audience_guidance(user_profile)
 
-        if isinstance(user_profile, str):
-            seniority = user_profile
-        else:
-            seniority = user_profile.get("seniority", "")
-
-        normalized_seniority = str(seniority).strip().casefold()
-        return AUDIENCE_GUIDANCE_BY_SENIORITY.get(normalized_seniority, "")
+    @staticmethod
+    def build_role_guidance(role):
+        return build_role_guidance(role)
 
     def _query_llm(self, prompt):
         return query_llm(
