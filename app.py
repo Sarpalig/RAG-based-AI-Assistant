@@ -281,10 +281,38 @@ def visible_profiles(profiles):
     ]
 
 
+def normalize_profile_name(display_name):
+    return " ".join(str(display_name).strip().casefold().split())
+
+
+def find_visible_profile_by_name(display_name, profiles=None):
+    store = st.session_state.get("profile_store", DEFAULT_PROFILE_STORE.copy())
+    candidate_profiles = profiles or visible_profiles(store.get("profiles", []))
+    normalized_name = normalize_profile_name(display_name)
+    if not normalized_name:
+        return None
+
+    for profile in candidate_profiles:
+        if normalize_profile_name(profile.get("display_name", "")) == normalized_name:
+            return profile
+    return None
+
+
+def authenticate_profile(display_name, password, profiles=None):
+    profile = find_visible_profile_by_name(display_name, profiles)
+    if not profile:
+        return None
+    if not can_activate_profile(profile, password):
+        return None
+    return profile
+
+
 def primary_user_profile():
     active_profile = active_user_profile()
     if active_profile:
         return active_profile
+    if st.session_state.get("profile_logged_out"):
+        return None
 
     store = st.session_state.get("profile_store", DEFAULT_PROFILE_STORE.copy())
     profiles = visible_profiles(store.get("profiles", []))
@@ -345,6 +373,10 @@ def initialize_session_state():
         st.session_state.editing_profile_id = None
     if "profile_form_open" not in st.session_state:
         st.session_state.profile_form_open = False
+    if "confirm_delete_profile_id" not in st.session_state:
+        st.session_state.confirm_delete_profile_id = None
+    if "profile_logged_out" not in st.session_state:
+        st.session_state.profile_logged_out = False
 
 
 def load_indexed_documents_on_startup():
@@ -763,8 +795,17 @@ def render_profile_page():
     if profile:
         render_profile_summary(profile)
     else:
-        st.info("Henüz bir profil oluşturulmadı.")
-        st.session_state.profile_form_open = True
+        profiles = visible_profiles(
+            st.session_state.get("profile_store", DEFAULT_PROFILE_STORE.copy()).get(
+                "profiles",
+                [],
+            )
+        )
+        if profiles:
+            render_profile_login(profiles)
+        else:
+            st.info("Henüz bir profil oluşturulmadı.")
+            st.session_state.profile_form_open = True
 
     if st.session_state.profile_form_open:
         st.divider()
@@ -894,18 +935,56 @@ def render_profile_summary(profile):
         unsafe_allow_html=True,
     )
 
-    actions = st.columns([1, 1, 4])
+    actions = st.columns([1, 1, 1, 3])
     with actions[0]:
         if st.button("Profili güncelle", type="primary", use_container_width=True):
             st.session_state.editing_profile_id = profile["id"]
             st.session_state.profile_form_open = True
+            st.session_state.confirm_delete_profile_id = None
             st.rerun()
     with actions[1]:
+        if st.button("Çıkış yap", use_container_width=True):
+            set_active_profile(None)
+            st.session_state.editing_profile_id = None
+            st.session_state.profile_form_open = False
+            st.session_state.confirm_delete_profile_id = None
+            st.session_state.profile_logged_out = True
+            st.session_state.profile_notice = {
+                "type": "info",
+                "message": "Oturum kapatıldı.",
+            }
+            st.rerun()
+    with actions[2]:
         if st.button("Profili sil", use_container_width=True):
+            st.session_state.confirm_delete_profile_id = profile["id"]
+            st.session_state.profile_form_open = False
+            st.rerun()
+
+    if st.session_state.confirm_delete_profile_id == profile["id"]:
+        st.warning(
+            "Profilinizi silmek üzeresiniz. Bu işlem geri alınamaz ve profil bilgileriniz kaldırılır."
+        )
+        confirm_actions = st.columns([1, 1, 4])
+        with confirm_actions[0]:
+            delete_confirmed = st.button(
+                "Evet, profili sil",
+                type="primary",
+                use_container_width=True,
+            )
+        with confirm_actions[1]:
+            delete_cancelled = st.button("Vazgeç", use_container_width=True)
+
+        if delete_cancelled:
+            st.session_state.confirm_delete_profile_id = None
+            st.rerun()
+
+        if delete_confirmed:
             try:
                 delete_profile(profile["id"])
                 st.session_state.editing_profile_id = None
                 st.session_state.profile_form_open = True
+                st.session_state.confirm_delete_profile_id = None
+                st.session_state.profile_logged_out = False
                 st.session_state.profile_notice = {
                     "type": "info",
                     "message": "Profil silindi.",
@@ -916,6 +995,41 @@ def render_profile_summary(profile):
                     "message": str(exc),
                 }
             st.rerun()
+
+
+def render_profile_login(profiles):
+    st.info("Profil bilgilerinizi görüntülemek için lütfen şifrenizle giriş yapın.")
+
+    with st.form("profile_login_form"):
+        display_name = st.text_input(
+            "Ad soyad",
+            max_chars=80,
+        )
+        password = st.text_input(
+            "Şifrenizi girin",
+            type="password",
+            max_chars=120,
+        )
+        submitted = st.form_submit_button("Giriş yap", type="primary")
+
+    if submitted:
+        profile = authenticate_profile(display_name, password, profiles)
+        if profile:
+            set_active_profile(profile["id"])
+            st.session_state.profile_logged_out = False
+            st.session_state.profile_form_open = False
+            st.session_state.editing_profile_id = None
+            st.session_state.confirm_delete_profile_id = None
+            st.session_state.profile_notice = {
+                "type": "success",
+                "message": "Giriş yapıldı.",
+            }
+        else:
+            st.session_state.profile_notice = {
+                "type": "info",
+                "message": "Ad soyad veya şifre hatalı.",
+            }
+        st.rerun()
 
 
 def render_profile_form(profile):
@@ -975,6 +1089,7 @@ def render_profile_form(profile):
     if cancelled:
         st.session_state.profile_form_open = False
         st.session_state.editing_profile_id = None
+        st.session_state.confirm_delete_profile_id = None
         st.rerun()
 
     if submitted:
@@ -988,6 +1103,8 @@ def render_profile_form(profile):
             )
             st.session_state.editing_profile_id = None
             st.session_state.profile_form_open = False
+            st.session_state.confirm_delete_profile_id = None
+            st.session_state.profile_logged_out = False
             st.session_state.profile_notice = {
                 "type": "success",
                 "message": f"{profile_label(saved_profile)} başarıyla kaydedildi.",

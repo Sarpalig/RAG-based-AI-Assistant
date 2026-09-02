@@ -86,8 +86,77 @@ def test_primary_user_profile_returns_first_visible_profile_when_none_is_active(
         }
     )
     app.st.session_state.profile_store = store
+    app.st.session_state.profile_logged_out = False
 
     assert app.primary_user_profile()["id"] == "real-user"
+
+
+def test_primary_user_profile_returns_none_after_logout():
+    password_hash = app.hash_password("correct-pass")
+    app.st.session_state.profile_logged_out = True
+    app.st.session_state.profile_store = app.normalize_profile_store(
+        {
+            "active_profile_id": None,
+            "profiles": [
+                {
+                    "id": "real-user",
+                    "display_name": "Real User",
+                    "role": "Geliştirici",
+                    "seniority": "Senior",
+                    "password_hash": password_hash,
+                }
+            ],
+        }
+    )
+
+    assert app.primary_user_profile() is None
+
+
+def test_find_visible_profile_by_name_matches_without_exposing_profile_choices():
+    password_hash = app.hash_password("correct-pass")
+    profiles = app.visible_profiles(
+        app.normalize_profile_store(
+            {
+                "active_profile_id": None,
+                "profiles": [
+                    {
+                        "id": "real-user",
+                        "display_name": "Lionel Messi",
+                        "role": "Geliştirici",
+                        "seniority": "Senior",
+                        "password_hash": password_hash,
+                    }
+                ],
+            }
+        )["profiles"]
+    )
+
+    assert app.find_visible_profile_by_name("  lionel   messi  ", profiles)["id"] == "real-user"
+    assert app.find_visible_profile_by_name("Cristiano Ronaldo", profiles) is None
+
+
+def test_authenticate_profile_requires_matching_name_and_password():
+    password_hash = app.hash_password("correct-pass")
+    profiles = app.visible_profiles(
+        app.normalize_profile_store(
+            {
+                "active_profile_id": None,
+                "profiles": [
+                    {
+                        "id": "real-user",
+                        "display_name": "Lionel Messi",
+                        "role": "Geliştirici",
+                        "seniority": "Senior",
+                        "password_hash": password_hash,
+                    }
+                ],
+            }
+        )["profiles"]
+    )
+
+    assert app.authenticate_profile("Lionel Messi", "correct-pass", profiles)["id"] == "real-user"
+    assert app.authenticate_profile("Lionel Messi", "wrong-pass", profiles) is None
+    assert app.authenticate_profile("Unknown User", "correct-pass", profiles) is None
 
 
 def test_normal_profiles_require_matching_password_to_activate():
