@@ -110,6 +110,49 @@ def test_query_openrouter_retries_server_error(monkeypatch):
     assert answer == "Son cevap"
 
 
+def test_query_openrouter_continues_when_answer_hits_token_limit(monkeypatch):
+    calls = []
+    responses = [
+        FakeResponse(
+            payload={
+                "choices": [
+                    {
+                        "message": {"content": "İlk bölüm"},
+                        "finish_reason": "length",
+                    }
+                ]
+            }
+        ),
+        FakeResponse(
+            payload={
+                "choices": [
+                    {
+                        "message": {"content": "son bölüm."},
+                        "finish_reason": "stop",
+                    }
+                ]
+            }
+        ),
+    ]
+
+    def fake_post(url, headers, json, timeout):
+        calls.append(json["messages"])
+        return responses.pop(0)
+
+    monkeypatch.setattr("src.generation.requests.post", fake_post)
+
+    answer = query_openrouter(
+        "test-key",
+        "test-model",
+        "Uzun cevap ver",
+        max_tokens=10,
+    )
+
+    assert answer == "İlk bölüm\nson bölüm."
+    assert len(calls) == 2
+    assert calls[1][-1]["content"].startswith("Yanıt token sınırında yarıda kesildi.")
+
+
 def test_query_ollama_returns_message_content(monkeypatch):
     def fake_post(url, json, timeout):
         assert url == "http://localhost:11434/api/chat"
@@ -117,6 +160,7 @@ def test_query_ollama_returns_message_content(monkeypatch):
         assert json["messages"][0]["content"] == "Selam"
         assert json["stream"] is False
         assert json["think"] is False
+        assert json["keep_alive"] == "10m"
         assert json["options"]["temperature"] == 0.2
         assert json["options"]["num_predict"] == 256
         assert timeout == 120
@@ -134,17 +178,48 @@ def test_query_ollama_returns_message_content(monkeypatch):
     assert answer == "Yerel cevap"
 
 
+def test_query_ollama_continues_when_answer_hits_token_limit(monkeypatch):
+    calls = []
+    responses = [
+        FakeResponse(
+            payload={
+                "message": {"content": "İlk bölüm"},
+                "done_reason": "length",
+            }
+        ),
+        FakeResponse(payload={"message": {"content": "son bölüm."}}),
+    ]
+
+    def fake_post(url, json, timeout):
+        calls.append(json["messages"])
+        return responses.pop(0)
+
+    monkeypatch.setattr("src.generation.requests.post", fake_post)
+
+    answer = query_ollama(
+        "http://localhost:11434",
+        "qwen3.5:9b",
+        "Uzun cevap ver",
+        max_tokens=10,
+    )
+
+    assert answer == "İlk bölüm\nson bölüm."
+    assert len(calls) == 2
+    assert calls[1][-1]["content"].startswith("Yanıt token sınırında yarıda kesildi.")
+
+
 def test_query_ollama_requires_model():
     with pytest.raises(OllamaError, match="OLLAMA_MODEL"):
         query_ollama("http://localhost:11434", "", "Selam")
 
 
 def test_query_llm_routes_to_ollama_by_default(monkeypatch):
-    def fake_query_ollama(base_url, model, prompt, max_tokens=512):
+    def fake_query_ollama(base_url, model, prompt, max_tokens=512, keep_alive="10m"):
         assert base_url == "http://localhost:11434"
         assert model == "qwen3.5:9b"
         assert prompt == "Selam"
         assert max_tokens == 512
+        assert keep_alive == "10m"
         return "Ollama cevap"
 
     monkeypatch.setattr("src.generation.query_ollama", fake_query_ollama)

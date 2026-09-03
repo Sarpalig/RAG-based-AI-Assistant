@@ -63,6 +63,10 @@ class RagPipeline:
             "OPENROUTER_FALLBACK_MODEL",
             "openrouter/free",
         )
+        self.answer_max_tokens = self._env_int("RAG_ANSWER_MAX_TOKENS", 1024)
+        self.source_max_chars = self._env_int("RAG_SOURCE_MAX_CHARS", 0)
+        self.query_embedding_cache_size = self._env_int("RAG_QUERY_CACHE_SIZE", 128)
+        self.ollama_keep_alive = os.getenv("OLLAMA_KEEP_ALIVE", "10m")
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
 
@@ -71,6 +75,7 @@ class RagPipeline:
             name=self.collection_name
         )
         self.embedding_model = EmbeddingModel(self.embedding_model_name)
+        self.query_embedding_cache = {}
 
     def index_file(self, file, file_name=None):
         file_content = self._read_file_content(file)
@@ -145,12 +150,34 @@ class RagPipeline:
         return list_indexed_documents(self.collection)
 
     def search(self, question, top_k=5):
-        query_embedding = self.embedding_model.embed_query(question)
+        query_embedding = self.embed_query_cached(question)
         candidate_count = self._search_candidate_count(top_k)
         results = similarity_search(self.collection, query_embedding, candidate_count)
         formatted_results = self.format_search_results(results)
         reranked_results = self.rerank_search_results(question, formatted_results)
         return self.diversify_search_results(reranked_results, top_k)
+
+    def embed_query_cached(self, question):
+        cache_key = str(question).strip().casefold()
+        if not cache_key:
+            return self.embedding_model.embed_query(question)
+
+        cache = getattr(self, "query_embedding_cache", None)
+        if cache is None:
+            cache = {}
+            self.query_embedding_cache = cache
+
+        if cache_key in cache:
+            return cache[cache_key]
+
+        embedding = self.embedding_model.embed_query(question)
+        cache_size = getattr(self, "query_embedding_cache_size", 128)
+        if cache_size > 0:
+            if len(cache) >= cache_size:
+                oldest_key = next(iter(cache))
+                cache.pop(oldest_key, None)
+            cache[cache_key] = embedding
+        return embedding
 
     @staticmethod
     def format_search_results(results):
@@ -197,6 +224,8 @@ Rules:
 10. Never fabricate a source or citation.
 11. Use the exact citation format [Kaynak 1], [Kaynak 2], etc. Do not write citations without square brackets.
 12. Conversation context may be used only to understand references in the current question. Do not treat conversation context as source evidence.
+13. Fit the answer inside the response token budget. If the available context is broad, summarize instead of starting a long answer that may be cut off.
+14. Finish with a complete sentence. Do not leave a numbered list, bullet, or paragraph unfinished.
 
 The goal is to provide accurate, grounded, and traceable answers based strictly on the retrieved documents."""
         audience_guidance = self.build_audience_guidance(user_profile)
@@ -210,11 +239,12 @@ Audience adaptation:
         source_blocks = []
 
         for index, result in enumerate(results, start=1):
+            source_text = self.truncate_source_text(result["text"])
             source_blocks.append(
                 f"""[Kaynak {index}]
 Dosya: {result["file_name"]}
 Metin:
-{result["text"]}"""
+{source_text}"""
             )
 
         sources_text = "\n\n".join(source_blocks)
@@ -286,13 +316,37 @@ Konuşma bağlamı:
         return query_llm(
             provider=self.llm_provider,
             prompt=prompt,
-            max_tokens=512,
+            max_tokens=getattr(self, "answer_max_tokens", 512),
             openrouter_api_key=self.openrouter_api_key,
             openrouter_model=self.openrouter_model,
             openrouter_fallback_model=self.openrouter_fallback_model,
             ollama_base_url=self.ollama_base_url,
             ollama_model=self.ollama_model,
+            ollama_keep_alive=getattr(self, "ollama_keep_alive", "10m"),
         )
+
+    @staticmethod
+    def _env_int(name, default):
+        raw_value = os.getenv(name)
+        if raw_value is None:
+            return default
+
+        try:
+            value = int(raw_value)
+        except (TypeError, ValueError):
+            return default
+
+        return value if value > 0 else default
+
+    def truncate_source_text(self, text):
+        max_chars = getattr(self, "source_max_chars", 0)
+        if not max_chars or len(text) <= max_chars:
+            return text
+
+        shortened = text[:max_chars].rsplit(maxsplit=1)[0].rstrip()
+        if not shortened:
+            shortened = text[:max_chars].rstrip()
+        return f"{shortened}..."
 
     @staticmethod
     def build_citations(results):

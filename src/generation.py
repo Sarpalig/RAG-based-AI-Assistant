@@ -28,6 +28,7 @@ def query_llm(
     openrouter_fallback_model=None,
     ollama_base_url="http://localhost:11434",
     ollama_model="qwen3.5:9b",
+    ollama_keep_alive="10m",
 ):
     provider = (provider or "ollama").lower()
 
@@ -37,6 +38,7 @@ def query_llm(
             model=ollama_model,
             prompt=prompt,
             max_tokens=max_tokens,
+            keep_alive=ollama_keep_alive,
         )
 
     if provider == "openrouter":
@@ -71,6 +73,8 @@ def query_ollama(
     prompt,
     max_tokens=512,
     timeout=120,
+    max_continuations=1,
+    keep_alive="10m",
 ):
     if not base_url:
         raise OllamaError("OLLAMA_BASE_URL is missing.")
@@ -80,32 +84,54 @@ def query_ollama(
         raise OllamaError("Prompt cannot be empty.")
 
     url = f"{base_url.rstrip('/')}/api/chat"
-    payload = {
-        "model": model,
-        "messages": [{"role": "user", "content": prompt}],
-        "stream": False,
-        "think": False,
-        "options": {
-            "temperature": 0.2,
-            "num_predict": max_tokens,
-        },
-    }
+    messages = [{"role": "user", "content": prompt}]
+    answer_parts = []
 
-    try:
-        response = requests.post(url, json=payload, timeout=timeout)
-        response.raise_for_status()
-        data = response.json()
-        return data["message"]["content"]
-    except requests.HTTPError as exc:
-        raise OllamaError(_format_ollama_http_error(exc)) from exc
-    except (requests.Timeout, requests.ConnectionError) as exc:
-        raise OllamaError(
-            f"Ollama request failed. Is Ollama running at {base_url}? {exc}"
-        ) from exc
-    except requests.RequestException as exc:
-        raise OllamaError(f"Ollama request failed: {exc}") from exc
-    except (KeyError, TypeError, ValueError) as exc:
-        raise OllamaError("Ollama returned an unexpected response format.") from exc
+    for _ in range(max_continuations + 1):
+        payload = {
+            "model": model,
+            "messages": messages,
+            "stream": False,
+            "think": False,
+            "options": {
+                "temperature": 0.2,
+                "num_predict": max_tokens,
+            },
+        }
+        if keep_alive:
+            payload["keep_alive"] = keep_alive
+
+        try:
+            response = requests.post(url, json=payload, timeout=timeout)
+            response.raise_for_status()
+            data = response.json()
+            content = data["message"]["content"]
+            answer_parts.append(content)
+            if data.get("done_reason") != "length":
+                return _join_answer_parts(answer_parts)
+
+            messages.append({"role": "assistant", "content": content})
+            messages.append(
+                {
+                    "role": "user",
+                    "content": (
+                        "Yanıt token sınırında yarıda kesildi. Önceki metni tekrar "
+                        "etmeden sadece kaldığın yerden devam et ve yanıtı tamamla."
+                    ),
+                }
+            )
+        except requests.HTTPError as exc:
+            raise OllamaError(_format_ollama_http_error(exc)) from exc
+        except (requests.Timeout, requests.ConnectionError) as exc:
+            raise OllamaError(
+                f"Ollama request failed. Is Ollama running at {base_url}? {exc}"
+            ) from exc
+        except requests.RequestException as exc:
+            raise OllamaError(f"Ollama request failed: {exc}") from exc
+        except (KeyError, TypeError, ValueError) as exc:
+            raise OllamaError("Ollama returned an unexpected response format.") from exc
+
+    return _join_answer_parts(answer_parts)
 
 
 def query_openrouter(
@@ -116,6 +142,7 @@ def query_openrouter(
     timeout=30,
     retries=2,
     retry_delay=1,
+    max_continuations=1,
 ):
     if not api_key:
         raise OpenRouterError("OPENROUTER_API_KEY is missing.")
@@ -129,38 +156,64 @@ def query_openrouter(
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
     }
-    payload = {
-        "model": model,
-        "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": max_tokens,
-        "temperature": 0.2,
-    }
+    messages = [{"role": "user", "content": prompt}]
+    answer_parts = []
 
-    last_error = None
-    for attempt in range(retries + 1):
-        try:
-            response = requests.post(url, headers=headers, json=payload, timeout=timeout)
-            response.raise_for_status()
-            data = response.json()
-            return data["choices"][0]["message"]["content"]
-        except requests.HTTPError as exc:
-            last_error = exc
-            status_code = exc.response.status_code if exc.response is not None else None
-            if status_code == 429:
-                raise OpenRouterRateLimitError(_format_rate_limit_error(exc)) from exc
-            if status_code not in {500, 502, 503, 504}:
-                raise OpenRouterError(_format_http_error(exc)) from exc
-        except (requests.Timeout, requests.ConnectionError) as exc:
-            last_error = exc
-        except requests.RequestException as exc:
-            raise OpenRouterError(f"OpenRouter request failed: {exc}") from exc
-        except (KeyError, IndexError, TypeError, ValueError) as exc:
-            raise OpenRouterError("OpenRouter returned an unexpected response format.") from exc
+    for _ in range(max_continuations + 1):
+        payload = {
+            "model": model,
+            "messages": messages,
+            "max_tokens": max_tokens,
+            "temperature": 0.2,
+        }
 
-        if attempt < retries:
-            time.sleep(retry_delay)
+        last_error = None
+        for attempt in range(retries + 1):
+            try:
+                response = requests.post(url, headers=headers, json=payload, timeout=timeout)
+                response.raise_for_status()
+                data = response.json()
+                choice = data["choices"][0]
+                content = choice["message"]["content"]
+                answer_parts.append(content)
+                if choice.get("finish_reason") != "length":
+                    return _join_answer_parts(answer_parts)
 
-    raise OpenRouterError(f"OpenRouter request failed after retries: {last_error}") from last_error
+                messages.append({"role": "assistant", "content": content})
+                messages.append(
+                    {
+                        "role": "user",
+                        "content": (
+                            "Yanıt token sınırında yarıda kesildi. Önceki metni tekrar "
+                            "etmeden sadece kaldığın yerden devam et ve yanıtı tamamla."
+                        ),
+                    }
+                )
+                break
+            except requests.HTTPError as exc:
+                last_error = exc
+                status_code = exc.response.status_code if exc.response is not None else None
+                if status_code == 429:
+                    raise OpenRouterRateLimitError(_format_rate_limit_error(exc)) from exc
+                if status_code not in {500, 502, 503, 504}:
+                    raise OpenRouterError(_format_http_error(exc)) from exc
+            except (requests.Timeout, requests.ConnectionError) as exc:
+                last_error = exc
+            except requests.RequestException as exc:
+                raise OpenRouterError(f"OpenRouter request failed: {exc}") from exc
+            except (KeyError, IndexError, TypeError, ValueError) as exc:
+                raise OpenRouterError("OpenRouter returned an unexpected response format.") from exc
+
+            if attempt < retries:
+                time.sleep(retry_delay)
+        else:
+            raise OpenRouterError(f"OpenRouter request failed after retries: {last_error}") from last_error
+
+    return _join_answer_parts(answer_parts)
+
+
+def _join_answer_parts(parts):
+    return "\n".join(part.strip() for part in parts if part and part.strip())
 
 
 def _format_http_error(error):

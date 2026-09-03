@@ -78,6 +78,27 @@ def test_search_embeds_question_and_formats_results(monkeypatch):
     assert results[0]["distance"] == 0.2
 
 
+def test_embed_query_cached_reuses_embedding_for_same_question():
+    pipeline = object.__new__(RagPipeline)
+    pipeline.query_embedding_cache = {}
+    pipeline.query_embedding_cache_size = 128
+    calls = []
+
+    class FakeEmbeddingModel:
+        def embed_query(self, question):
+            calls.append(question)
+            return [0.1, 0.2, 0.3]
+
+    pipeline.embedding_model = FakeEmbeddingModel()
+
+    first_embedding = pipeline.embed_query_cached("What is GAN?")
+    second_embedding = pipeline.embed_query_cached(" what is gan? ")
+
+    assert first_embedding == [0.1, 0.2, 0.3]
+    assert second_embedding == first_embedding
+    assert calls == ["What is GAN?"]
+
+
 def test_index_files_uses_base_file_name(monkeypatch):
     pipeline = object.__new__(RagPipeline)
     seen_file_names = []
@@ -183,6 +204,31 @@ def test_build_rag_prompt_includes_rules_question_and_sources():
     assert "[Kaynak 1]" in prompt
     assert "remote_work_policy.md" in prompt
     assert "Uzaktan çalışma için onay birim yöneticisinden alınır." in prompt
+
+
+def test_build_rag_prompt_does_not_truncate_sources_by_default():
+    pipeline = object.__new__(RagPipeline)
+    long_text = "A" * 2200
+
+    prompt = pipeline.build_rag_prompt(
+        "Question?",
+        [{"file_name": "long.md", "text": long_text}],
+    )
+
+    assert long_text in prompt
+
+
+def test_build_rag_prompt_can_truncate_sources_when_configured():
+    pipeline = object.__new__(RagPipeline)
+    pipeline.source_max_chars = 20
+
+    prompt = pipeline.build_rag_prompt(
+        "Question?",
+        [{"file_name": "long.md", "text": "one two three four five six"}],
+    )
+
+    assert "one two three four..." in prompt
+    assert "five six" not in prompt
 
 
 def test_build_rag_prompt_includes_seniority_guidance_when_profile_is_active():
@@ -312,6 +358,7 @@ def test_answer_query_searches_builds_prompt_and_calls_openrouter(monkeypatch):
         openrouter_fallback_model=None,
         ollama_base_url=None,
         ollama_model=None,
+        ollama_keep_alive=None,
     ):
         assert provider == "ollama"
         assert openrouter_api_key == "test-key"
@@ -319,6 +366,7 @@ def test_answer_query_searches_builds_prompt_and_calls_openrouter(monkeypatch):
         assert openrouter_fallback_model == "openrouter/free"
         assert ollama_base_url == "http://localhost:11434"
         assert ollama_model == "qwen3.5:9b"
+        assert ollama_keep_alive == "10m"
         assert "Who approves remote work?" in prompt
         assert "Remote work requires manager approval." in prompt
         assert max_tokens == 512
@@ -476,10 +524,12 @@ def test_query_llm_receives_openrouter_fallback_model(monkeypatch):
         openrouter_fallback_model=None,
         ollama_base_url=None,
         ollama_model=None,
+        ollama_keep_alive=None,
     ):
         assert provider == "openrouter"
         assert openrouter_model == "primary-model"
         assert openrouter_fallback_model == "openrouter/free"
+        assert ollama_keep_alive == "10m"
         return "OpenRouter answer"
 
     monkeypatch.setattr(rag_pipeline, "query_llm", fake_query_llm)
