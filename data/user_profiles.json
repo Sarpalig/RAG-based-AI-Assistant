@@ -1,5 +1,5 @@
 {
-  "active_profile_id": null,
+  "active_profile_id": "f3d7361e61d640d89e43450809185633",
   "profiles": [
     {
       "id": "mock-intern",
@@ -47,6 +47,14 @@
       "role": "",
       "seniority": "Senior",
       "password_hash": "pbkdf2_sha256$120000$c15b6e87f6de2e6633a63b06f374bee9$d07b31ecf05c1da34cc45beba7a60adc517b42d77ef0f3f5d242a9ea50edc7a7",
+      "is_mock": false
+    },
+    {
+      "id": "f3d7361e61d640d89e43450809185633",
+      "display_name": "Demoint",
+      "role": "",
+      "seniority": "Intern",
+      "password_hash": "pbkdf2_sha256$120000$ebc2a12e4fb744d6fbfce7d4f3bf183f$072d2c733d924b5ff03b26c3c688573f324f118e8ddf3f9721742bb39b479630",
       "is_mock": false
     }
   ]

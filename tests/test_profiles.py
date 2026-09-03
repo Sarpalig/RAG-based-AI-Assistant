@@ -112,6 +112,37 @@ def test_primary_user_profile_returns_none_after_logout():
     assert app.primary_user_profile() is None
 
 
+def test_open_new_profile_form_prepares_creation_state():
+    app.st.session_state.editing_profile_id = "real-user"
+    app.st.session_state.profile_form_open = False
+    app.st.session_state.confirm_delete_profile_id = "real-user"
+
+    app.open_new_profile_form()
+
+    assert app.st.session_state.editing_profile_id is None
+    assert app.st.session_state.profile_form_open is True
+    assert app.st.session_state.confirm_delete_profile_id is None
+
+
+def test_logout_profile_clears_active_profile_and_chat(monkeypatch):
+    use_in_memory_profile_store(monkeypatch)
+    app.st.session_state.profile_store["active_profile_id"] = "real-user"
+    app.st.session_state.messages = [{"role": "user", "content": "Merhaba"}]
+    app.st.session_state.editing_profile_id = "real-user"
+    app.st.session_state.profile_form_open = True
+    app.st.session_state.confirm_delete_profile_id = "real-user"
+    app.st.session_state.profile_logged_out = False
+
+    app.logout_profile()
+
+    assert app.st.session_state.profile_store["active_profile_id"] is None
+    assert app.st.session_state.messages == []
+    assert app.st.session_state.editing_profile_id is None
+    assert app.st.session_state.profile_form_open is False
+    assert app.st.session_state.confirm_delete_profile_id is None
+    assert app.st.session_state.profile_logged_out is True
+
+
 def test_find_visible_profile_by_name_matches_without_exposing_profile_choices():
     password_hash = app.hash_password("correct-pass")
     profiles = app.visible_profiles(

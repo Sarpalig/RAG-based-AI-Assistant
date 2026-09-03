@@ -332,6 +332,21 @@ def set_active_profile(profile_id):
     )
 
 
+def open_new_profile_form():
+    st.session_state.editing_profile_id = None
+    st.session_state.profile_form_open = True
+    st.session_state.confirm_delete_profile_id = None
+
+
+def logout_profile():
+    set_active_profile(None)
+    st.session_state.messages = []
+    st.session_state.editing_profile_id = None
+    st.session_state.profile_form_open = False
+    st.session_state.confirm_delete_profile_id = None
+    st.session_state.profile_logged_out = True
+
+
 def load_pipeline(show_status=False, ollama_model=None):
     model = ollama_model or selected_ollama_model()
 
@@ -830,24 +845,19 @@ def render_profile_page():
         )
         if profiles:
             render_profile_login(profiles)
+            if st.button("Yeni profil oluştur", use_container_width=True):
+                open_new_profile_form()
+                st.rerun()
         else:
             st.info("Henüz bir profil oluşturulmadı.")
-            st.session_state.profile_form_open = True
+            open_new_profile_form()
 
     if st.session_state.profile_form_open:
         st.divider()
         render_profile_form(profile)
 
     st.divider()
-    st.subheader("Yanıt uyarlaması")
-    st.write(
-        "Stajyer: temel kavramlar ve adımlar daha açıklayıcı şekilde sunulur. "
-        "Junior: uygulamaya dönük adımlar ve kritik terimler öne çıkarılır. "
-        "Orta seviye: dengeli düzeyde teknik ayrıntı verilir. "
-        "Senior: daha kısa, risk ve karar noktalarına odaklanan yanıtlar üretilir. "
-        "Proje Yöneticisi rolünde yanıtlar teknik ayrıntılar yerine ürün kalitesi, "
-        "kabul kriterleri, riskler, kapsam ve karar noktalarına odaklanır."
-    )
+    
 
 
 def render_profile_summary(profile):
@@ -971,12 +981,7 @@ def render_profile_summary(profile):
             st.rerun()
     with actions[1]:
         if st.button("Çıkış yap", use_container_width=True):
-            set_active_profile(None)
-            st.session_state.messages = []
-            st.session_state.editing_profile_id = None
-            st.session_state.profile_form_open = False
-            st.session_state.confirm_delete_profile_id = None
-            st.session_state.profile_logged_out = True
+            logout_profile()
             st.session_state.profile_notice = {
                 "type": "info",
                 "message": "Oturum kapatıldı.",
