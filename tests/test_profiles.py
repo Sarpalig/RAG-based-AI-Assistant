@@ -30,7 +30,7 @@ def test_normalize_profile_store_adds_passwordless_mock_profiles():
     assert "mock-mid-level" in profiles_by_id
     assert "mock-senior" in profiles_by_id
     assert "mock-project-manager" in profiles_by_id
-    assert profiles_by_id["mock-project-manager"]["role"] == "Proje Yöneticisi"
+    assert profiles_by_id["mock-project-manager"]["role"] == "Project Manager"
     assert profiles_by_id["mock-project-manager"]["password_hash"] == ""
     assert profiles_by_id["mock-project-manager"]["is_mock"] is True
 
@@ -60,6 +60,43 @@ def test_profile_initials_uses_first_two_name_parts():
     assert app.profile_initials("Ada Lovelace") == "AL"
     assert app.profile_initials("Ada") == "A"
     assert app.profile_initials("") == "P"
+
+
+def test_role_label_returns_display_label_for_known_role():
+    assert app.role_label("Project Manager") == "Proje Yöneticisi"
+    assert app.role_label("SAP Consultant") == "SAP Danışmanı"
+
+
+def test_role_options_preserve_existing_custom_role():
+    options = app.role_options_for_current_value("Legacy Role")
+
+    assert "Backend Developer" in options
+    assert "Developer" not in options
+    assert "Legacy Role" in options
+
+
+def test_normalize_profile_migrates_old_general_developer_role():
+    profile = app.normalize_profile(
+        {
+            "display_name": "Real User",
+            "role": "Geliştirici",
+            "seniority": "Junior",
+        }
+    )
+
+    assert profile["role"] == "Backend Developer"
+
+
+def test_normalize_profile_migrates_turkish_project_manager_role():
+    profile = app.normalize_profile(
+        {
+            "display_name": "Real User",
+            "role": "Proje Yöneticisi",
+            "seniority": "Senior",
+        }
+    )
+
+    assert profile["role"] == "Project Manager"
 
 
 def test_active_user_profile_ignores_mock_profile(monkeypatch):
@@ -269,6 +306,7 @@ def test_save_profile_hashes_password_and_activates_profile(monkeypatch):
 
     saved_profile = app.find_profile(profile["id"])
     assert app.st.session_state.profile_store["active_profile_id"] == profile["id"]
+    assert saved_profile["role"] == "Project Manager"
     assert saved_profile["password_hash"]
     assert saved_profile["password_hash"] != "correct-pass"
     assert app.verify_password("correct-pass", saved_profile["password_hash"])

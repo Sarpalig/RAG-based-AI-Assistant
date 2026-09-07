@@ -241,7 +241,8 @@ def test_build_rag_prompt_includes_seniority_guidance_when_profile_is_active():
     )
 
     assert "Audience adaptation:" in prompt
-    assert "The user is an intern" in prompt
+    assert "The user's seniority is Intern" in prompt
+    assert "Do not dilute or omit important details" in prompt
     assert "Use only the provided context" in prompt
     assert "Complete the first checklist item." in prompt
 
@@ -255,10 +256,12 @@ def test_build_rag_prompt_includes_project_manager_role_guidance():
         {"role": "Senior Project Manager", "seniority": "Senior"},
     )
 
-    assert "The user's role is Project Manager" in prompt
-    assert "Focus on product quality" in prompt
-    assert "Avoid low-level implementation details" in prompt
-    assert "The user is senior-level" in prompt
+    assert "The user's role is Senior Project Manager" in prompt
+    assert "For a Project Manager" in prompt
+    assert "Preserve technical facts" in prompt
+    assert "planning, coordination, quality" in prompt
+    assert "The user's seniority is Senior" in prompt
+    assert "decision-oriented" in prompt
 
 
 def test_build_rag_prompt_includes_chat_history_as_context_only():
@@ -298,19 +301,22 @@ def test_build_chat_history_section_ignores_empty_or_unknown_messages():
 def test_build_role_guidance_matches_turkish_project_manager_role():
     guidance = RagPipeline.build_role_guidance("Proje Yoneticisi")
 
-    assert "The user's role is Project Manager" in guidance
+    assert "The user's role is Proje Yoneticisi" in guidance
+    assert "For a Project Manager" in guidance
 
 
 def test_build_role_guidance_matches_turkish_project_manager_role_with_diacritics():
     guidance = RagPipeline.build_role_guidance("Proje Yöneticisi")
 
-    assert "The user's role is Project Manager" in guidance
+    assert "The user's role is Proje Yöneticisi" in guidance
+    assert "For a Project Manager" in guidance
 
 
-def test_build_role_guidance_ignores_non_project_manager_role():
+def test_build_role_guidance_adds_general_guidance_for_non_project_manager_role():
     guidance = RagPipeline.build_role_guidance("Backend Developer")
 
-    assert guidance == ""
+    assert "The user's role is Backend Developer" in guidance
+    assert "For a Project Manager" not in guidance
 
 
 def test_build_audience_guidance_combines_project_manager_role_and_seniority():
@@ -318,9 +324,10 @@ def test_build_audience_guidance_combines_project_manager_role_and_seniority():
         {"role": "Project Manager", "seniority": "Mid-level"}
     )
 
-    assert "Focus on product quality" in guidance
-    assert "Avoid low-level implementation details" in guidance
-    assert "The user is mid-level" in guidance
+    assert "goals, scope, stakeholders" in guidance
+    assert "Preserve technical facts" in guidance
+    assert "The user's seniority is Mid-level" in guidance
+    assert "working familiarity" in guidance
 
 
 def test_build_audience_guidance_ignores_missing_or_unknown_profile():
@@ -471,9 +478,10 @@ def test_answer_query_adds_project_manager_guidance_to_prompt(monkeypatch):
     )
 
     assert "The user's role is Project Manager" in seen["prompt"]
-    assert "Focus on product quality" in seen["prompt"]
-    assert "Avoid low-level implementation details" in seen["prompt"]
-    assert "The user is senior-level" in seen["prompt"]
+    assert "goals, scope, stakeholders" in seen["prompt"]
+    assert "Preserve technical facts" in seen["prompt"]
+    assert "The user's seniority is Senior" in seen["prompt"]
+    assert "decision-oriented" in seen["prompt"]
     assert answer == "Prioritize launch-blocking defects. [Kaynak 1]"
     assert citations == ["Kaynak 1: quality.md"]
 

@@ -15,9 +15,9 @@ if str(PROJECT_ROOT) not in sys.path:
 
 DEFAULT_PROFILES = [
     ("Genel", None),
-    ("Intern Developer", {"role": "Developer", "seniority": "Intern"}),
-    ("Junior Developer", {"role": "Developer", "seniority": "Junior"}),
-    ("Senior Developer", {"role": "Developer", "seniority": "Senior"}),
+    ("Intern Backend Developer", {"role": "Backend Developer", "seniority": "Intern"}),
+    ("Junior Backend Developer", {"role": "Backend Developer", "seniority": "Junior"}),
+    ("Senior Backend Developer", {"role": "Backend Developer", "seniority": "Senior"}),
     (
         "Senior Project Manager",
         {"role": "Project Manager", "seniority": "Senior"},

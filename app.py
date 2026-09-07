@@ -33,6 +33,44 @@ SENIORITY_LABELS = {
     "Mid-level": "Orta seviye",
     "Senior": "Senior",
 }
+ROLE_OPTIONS = [
+    "Backend Developer",
+    "Frontend Developer",
+    "Full Stack Developer",
+    "Data Engineer",
+    "Data Scientist",
+    "Machine Learning Engineer",
+    "MLOps Engineer",
+    "BI Analyst",
+    "Data Analyst",
+    "Business Analyst",
+    "SAP Consultant",
+    "Integration Consultant",
+    "Project Manager",
+    "Product Owner",
+    "DevOps/SRE",
+    "Security Specialist",
+    "QA Engineer",
+]
+ROLE_LABELS = {
+    "Backend Developer": "Backend Developer",
+    "Frontend Developer": "Frontend Developer",
+    "Full Stack Developer": "Full Stack Developer",
+    "Data Engineer": "Data Engineer",
+    "Data Scientist": "Data Scientist",
+    "Machine Learning Engineer": "ML Engineer",
+    "MLOps Engineer": "MLOps Engineer",
+    "BI Analyst": "BI Analyst",
+    "Data Analyst": "Data Analyst",
+    "Business Analyst": "Business Analyst",
+    "SAP Consultant": "SAP Danışmanı",
+    "Integration Consultant": "Entegrasyon Danışmanı",
+    "Project Manager": "Proje Yöneticisi",
+    "Product Owner": "Product Owner",
+    "DevOps/SRE": "DevOps / SRE",
+    "Security Specialist": "Güvenlik Uzmanı",
+    "QA Engineer": "QA Engineer",
+}
 PASSWORD_HASH_ITERATIONS = 120000
 DEFAULT_PROFILE_STORE = {
     "active_profile_id": None,
@@ -40,42 +78,42 @@ DEFAULT_PROFILE_STORE = {
 }
 EMPTY_PROFILE_FORM = {
     "display_name": "",
-    "role": "",
+    "role": ROLE_OPTIONS[0],
     "seniority": "Junior",
 }
 MOCK_PROFILES = [
     {
         "id": "mock-intern",
         "display_name": "Test Stajyer",
-        "role": "Geliştirici",
+        "role": "Backend Developer",
         "seniority": "Intern",
         "is_mock": True,
     },
     {
         "id": "mock-junior",
         "display_name": "Test Junior",
-        "role": "Geliştirici",
+        "role": "Backend Developer",
         "seniority": "Junior",
         "is_mock": True,
     },
     {
         "id": "mock-mid-level",
         "display_name": "Test Orta Seviye",
-        "role": "Geliştirici",
+        "role": "Backend Developer",
         "seniority": "Mid-level",
         "is_mock": True,
     },
     {
         "id": "mock-senior",
         "display_name": "Test Senior",
-        "role": "Geliştirici",
+        "role": "Backend Developer",
         "seniority": "Senior",
         "is_mock": True,
     },
     {
         "id": "mock-project-manager",
         "display_name": "Test Proje Yöneticisi",
-        "role": "Proje Yöneticisi",
+        "role": "Project Manager",
         "seniority": "Senior",
         "is_mock": True,
     },
@@ -156,7 +194,7 @@ def normalize_profile(profile):
     return {
         "id": str(profile_id),
         "display_name": str(profile.get("display_name", "")).strip(),
-        "role": str(profile.get("role", "")).strip(),
+        "role": normalize_role_value(profile.get("role")),
         "seniority": seniority,
         "password_hash": "" if is_mock else str(profile.get("password_hash", "")),
         "is_mock": is_mock,
@@ -247,7 +285,7 @@ def current_user_profile():
 
 def profile_label(profile):
     name = profile.get("display_name") or "İsimsiz profil"
-    role = profile.get("role")
+    role = role_label(profile.get("role"))
     seniority = seniority_label(profile.get("seniority", "Genel"))
     if role:
         return f"{name} - {role} ({seniority})"
@@ -256,6 +294,26 @@ def profile_label(profile):
 
 def seniority_label(seniority):
     return SENIORITY_LABELS.get(seniority, seniority)
+
+
+def role_label(role):
+    return ROLE_LABELS.get(role, role or "Rol belirtilmedi")
+
+
+def normalize_role_value(role):
+    role = str(role or "").strip()
+    if role in {"Developer", "Geliştirici", "GeliÅŸtirici"}:
+        return "Backend Developer"
+    if role in {"Proje Yöneticisi", "Proje YÃ¶neticisi"}:
+        return "Project Manager"
+    return role
+
+
+def role_options_for_current_value(role):
+    role = normalize_role_value(role)
+    if role and role not in ROLE_OPTIONS:
+        return ROLE_OPTIONS + [role]
+    return ROLE_OPTIONS
 
 
 def profile_initials(display_name):
@@ -862,7 +920,7 @@ def render_profile_page():
 
 def render_profile_summary(profile):
     display_name = html.escape(profile.get("display_name") or "İsimsiz profil")
-    role = html.escape(profile.get("role") or "Rol belirtilmedi")
+    role = html.escape(role_label(profile.get("role")))
     seniority = html.escape(seniority_label(profile.get("seniority", "Genel")))
     initials = html.escape(profile_initials(profile.get("display_name", "")))
 
@@ -1076,6 +1134,12 @@ def render_profile_form(profile):
         if editing_profile.get("seniority") in SENIORITY_OPTIONS
         else SENIORITY_OPTIONS.index(EMPTY_PROFILE_FORM["seniority"])
     )
+    role_options = role_options_for_current_value(editing_profile.get("role"))
+    role_index = (
+        role_options.index(editing_profile["role"])
+        if editing_profile.get("role") in role_options
+        else role_options.index(EMPTY_PROFILE_FORM["role"])
+    )
 
     st.subheader("Profil bilgileri")
     with st.form("profile_form"):
@@ -1084,10 +1148,11 @@ def render_profile_form(profile):
             value=editing_profile.get("display_name", ""),
             max_chars=80,
         )
-        role = st.text_input(
+        role = st.selectbox(
             "Rol / ekip",
-            value=editing_profile.get("role", ""),
-            max_chars=80,
+            options=role_options,
+            index=role_index,
+            format_func=role_label,
         )
         seniority = st.selectbox(
             "Kıdem seviyesi",
