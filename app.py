@@ -76,6 +76,48 @@ DEFAULT_PROFILE_STORE = {
     "active_profile_id": None,
     "profiles": [],
 }
+REPORT_DEMO_PROFILE_ID = "report-demo-profile"
+REPORT_DEMO_DOCUMENTS = {
+    "report-demo-remote-work": {
+        "document_hash": "report-demo-remote-work",
+        "file_name": "remote_work_policy.md",
+        "document_type": "md",
+        "chunk_count": 4,
+        "skipped": False,
+    },
+    "report-demo-security": {
+        "document_hash": "report-demo-security",
+        "file_name": "security_guidelines.md",
+        "document_type": "md",
+        "chunk_count": 4,
+        "skipped": False,
+    },
+    "report-demo-travel": {
+        "document_hash": "report-demo-travel",
+        "file_name": "travel_expense_policy.pdf",
+        "document_type": "pdf",
+        "chunk_count": 2,
+        "skipped": False,
+    },
+}
+REPORT_DEMO_MESSAGES = [
+    {
+        "role": "user",
+        "content": "Uzaktan çalışma talebi için kimden onay alınmalıdır?",
+    },
+    {
+        "role": "assistant",
+        "content": (
+            "Uzaktan çalışma talebi için onay birim yöneticisinden alınmalıdır. "
+            "Çalışan talebini en az 3 gün önceden yöneticisine iletmelidir. "
+            "[Kaynak 1]"
+        ),
+        "citations": [
+            "Kaynak 1: remote_work_policy.md, paragraf 2",
+            "Kaynak 2: security_guidelines.md, paragraf 3",
+        ],
+    },
+]
 EMPTY_PROFILE_FORM = {
     "display_name": "",
     "role": ROLE_OPTIONS[0],
@@ -141,6 +183,42 @@ def selected_page():
     return st.session_state.get("selected_page", "Sohbet")
 
 
+def report_figure_mode():
+    return os.getenv("REPORT_FIGURE_MODE") == "1"
+
+
+def report_page_from_query():
+    if not report_figure_mode():
+        return None
+
+    requested_page = st.query_params.get("report_page")
+    aliases = {
+        "chat": "Sohbet",
+        "sohbet": "Sohbet",
+        "documents": "Belgeler",
+        "belgeler": "Belgeler",
+        "profile": "Profil",
+        "profil": "Profil",
+    }
+    return aliases.get(str(requested_page or "").strip().casefold())
+
+
+def report_demo_profile_store():
+    return {
+        "active_profile_id": REPORT_DEMO_PROFILE_ID,
+        "profiles": [
+            {
+                "id": REPORT_DEMO_PROFILE_ID,
+                "display_name": "Demo User",
+                "role": "AI Engineer",
+                "seniority": "Intern",
+                "password_hash": "",
+                "is_mock": False,
+            }
+        ],
+    }
+
+
 def hash_password(password):
     salt = secrets.token_hex(16)
     digest = hashlib.pbkdf2_hmac(
@@ -181,6 +259,8 @@ def is_mock_profile(profile):
 
 
 def requires_password(profile):
+    if report_figure_mode() and profile and profile.get("id") == REPORT_DEMO_PROFILE_ID:
+        return False
     return not is_mock_profile(profile)
 
 
@@ -266,6 +346,8 @@ def find_profile(profile_id):
 def active_user_profile():
     store = st.session_state.get("profile_store", DEFAULT_PROFILE_STORE)
     profile = find_profile(store.get("active_profile_id"))
+    if report_figure_mode() and profile and profile.get("id") == REPORT_DEMO_PROFILE_ID:
+        return profile
     if is_mock_profile(profile) or (profile and not profile.get("password_hash")):
         return None
     return profile
@@ -333,6 +415,12 @@ def can_activate_profile(profile, password=None):
 
 
 def visible_profiles(profiles):
+    if report_figure_mode():
+        return [
+            profile
+            for profile in profiles
+            if profile.get("id") == REPORT_DEMO_PROFILE_ID
+        ]
     return [
         profile
         for profile in profiles
@@ -427,6 +515,7 @@ def load_pipeline(show_status=False, ollama_model=None):
 
 
 def initialize_session_state():
+    report_page = report_page_from_query()
     if "indexed_documents" not in st.session_state:
         st.session_state.indexed_documents = {}
     if "indexed_documents_loaded" not in st.session_state:
@@ -452,8 +541,26 @@ def initialize_session_state():
     if "profile_logged_out" not in st.session_state:
         st.session_state.profile_logged_out = False
 
+    if report_figure_mode():
+        st.session_state.indexed_documents = REPORT_DEMO_DOCUMENTS.copy()
+        st.session_state.indexed_documents_loaded = True
+        st.session_state.profile_store = report_demo_profile_store()
+        st.session_state.profile_logged_out = False
+        st.session_state.profile_form_open = False
+        st.session_state.editing_profile_id = None
+        st.session_state.confirm_delete_profile_id = None
+        if report_page:
+            st.session_state.selected_page = report_page
+        if st.session_state.selected_page == "Sohbet":
+            st.session_state.messages = [
+                message.copy() for message in REPORT_DEMO_MESSAGES
+            ]
+
 
 def load_indexed_documents_on_startup():
+    if report_figure_mode():
+        return
+
     if st.session_state.indexed_documents_loaded:
         return
 
@@ -598,6 +705,12 @@ def answer_question(query, ollama_model=None):
     if not query.strip():
         raise ValueError("Lütfen önce bir soru yazın.")
 
+    if report_figure_mode():
+        return (
+            REPORT_DEMO_MESSAGES[1]["content"],
+            REPORT_DEMO_MESSAGES[1]["citations"],
+        )
+
     try:
         rag = load_pipeline(ollama_model=ollama_model)
         chat_history = recent_chat_history(st.session_state.get("messages", []))
@@ -627,7 +740,7 @@ def render_message(message):
         st.markdown(message["content"])
         citations = message.get("citations") or []
         if citations:
-            render_citations(citations, expanded=False)
+            render_citations(citations, expanded=report_figure_mode())
 
 
 def render_chat():
